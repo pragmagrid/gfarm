@@ -53,11 +53,15 @@
 
 	<changelog>
 	$Log$
+	Revision 1.2  2005/02/01 23:55:26  mjk
+	Do not use the roll="name" attribute of the package tags anymore, the
+	make roll step will do this for you.
+	
 	Revision 1.1  2003/11/05 16:11:08  mjk
 	added xml graph
 	
 	</changelog>
 
-	<package roll="gfarm">gfarm</package>
+	<package>gfarm</package>
 
 </kickstart>
