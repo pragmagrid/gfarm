@@ -1,0 +1,20 @@
+<?xml version="1.0" standalone="no"?>
+
+<kickstart>
+
+
+	<description>
+	Grid Data Farm 
+	</description>
+
+	<copyright>
+	</copyright>
+
+	<changelog>
+	$Log$
+	Revision 1.1  2005/04/12 20:15:22  mjk
+	*** empty log message ***
+	
+	</changelog>
+
+</kickstart>
