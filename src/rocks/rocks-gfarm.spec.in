@@ -1,0 +1,60 @@
+# $Id$
+#
+# @Copyright@
+# @Copyright@
+#
+# $Log$
+# Revision 1.1  2005/04/14 13:29:41  mjk
+# *** empty log message ***
+#
+
+Summary: @NAME@
+Name: @NAME@
+Version: @VERSION@
+Release: @RELEASE@
+Copyright: @COPYRIGHT@
+Vendor: @VENDOR@
+Group: System Environment/Base
+Source: %{name}-%{version}.tar.gz
+Buildroot: @VAR@/tmp/%{name}-buildroot
+BuildArchitectures: noarch
+
+%description
+
+@NAME@
+
+##
+## PREP
+##
+%prep
+/bin/rm -rf $RPM_BUILD_ROOT
+
+##
+## SETUP
+##
+%setup -q
+
+##
+## BUILD
+##
+%build
+make ROOT=$RPM_BUILD_ROOT build
+
+##
+## INSTALL
+##
+%install
+make ROOT=$RPM_BUILD_ROOT install
+
+##
+## FILES
+##
+%files
+/
+
+##
+## CLEAN
+##
+%clean
+/bin/rm -rf $RPM_BUILD_ROOT
+
