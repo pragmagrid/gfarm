@@ -26,6 +26,9 @@
 # @Copyright@
 #
 # $Log$
+# Revision 1.3  2005/04/14 16:23:01  mjk
+# *** empty log message ***
+#
 # Revision 1.2  2005/04/14 16:09:38  mjk
 # *** empty log message ***
 #
@@ -39,8 +42,14 @@
 # *** empty log message ***
 #
 
-rpm:
-	rpmbuild --rebuild --nodeps *.src.rpm
+MAKE.iscontrib = 1
+REDHAT.ROOT = $(PWD)/../../
+ROCKSROOT = ../../../../..
+-include $(ROCKSROOT)/etc/Rules.mk
+include Rules.mk
 
-clean:
+rpm::
+	rpmbuild --rebuild --nodeps *.src.rpm
+	cp /usr/src/redhat/RPMS/$(ARCH)/gfarm*.rpm ../../RPMS/$(ARCH)/
+
 
