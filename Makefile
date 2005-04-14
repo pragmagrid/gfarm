@@ -26,6 +26,9 @@
 # @Copyright@
 #
 # $Log$
+# Revision 1.3  2005/04/14 16:42:17  mjk
+# *** empty log message ***
+#
 # Revision 1.2  2005/04/14 16:09:38  mjk
 # *** empty log message ***
 #
@@ -33,6 +36,7 @@
 # *** empty log message ***
 #
 
+SELFCONTAINED = 1
 COPYRIGHT.FILE = $(shell pwd)/COPYRIGHT
 
 ROLLSROOT = ..
