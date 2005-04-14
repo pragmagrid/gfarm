@@ -26,6 +26,9 @@
 # @Copyright@
 #
 # $Log$
+# Revision 1.3  2005/04/14 14:04:14  mjk
+# *** empty log message ***
+#
 # Revision 1.2  2005/04/14 13:34:56  mjk
 # AIST gets the copyright on this
 #
@@ -44,9 +47,26 @@ Source: %{name}-%{version}.tar.gz
 Buildroot: @VAR@/tmp/%{name}-buildroot
 BuildArchitectures: noarch
 
+%package meta
+Summary: @NAME@ for the meta server
+Group: System Environment/Base
+
+%package data
+Summary: @NAME@ for the fs nodes 
+Group: System Environment/Base
+
 %description
 
 @NAME@
+
+%description meta
+
+@NAME@
+
+%description data
+
+@NAME@
+
 
 ##
 ## PREP
@@ -75,7 +95,9 @@ make ROOT=$RPM_BUILD_ROOT install
 ## FILES
 ##
 %files
-/
+/etc/profiles.d
+%files data
+/etc/rc.d/rocksconfig.d
 
 ##
 ## CLEAN
