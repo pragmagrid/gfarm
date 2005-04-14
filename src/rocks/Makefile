@@ -27,6 +27,9 @@
 # @Copyright@
 #
 # $Log$
+# Revision 1.4  2005/04/14 16:09:20  mjk
+# *** empty log message ***
+#
 # Revision 1.3  2005/04/14 14:04:14  mjk
 # *** empty log message ***
 #
@@ -44,11 +47,8 @@ include Rules.mk
 
 install::
 	mkdir -p $(ROOT)/etc/profile.d
-	mkdir -p $(ROOT)/etc/rc.d/rocksconfig.d
 	install -m744 etc/profile.d/*.sh	$(ROOT)/etc/profile.d/
 	install -m744 etc/profile.d/*.csh	$(ROOT)/etc/profile.d/
-	install -m444 etc/rc.d/rocksconfig.d/*.sh \
-		$(ROOT)/etc/rc.d/rocksconfig.d/
 
 build: $(SCRIPTS)
 
