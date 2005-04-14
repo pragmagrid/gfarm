@@ -26,6 +26,9 @@
 # @Copyright@
 #
 # $Log$
+# Revision 1.4  2005/04/14 16:30:47  mjk
+# *** empty log message ***
+#
 # Revision 1.3  2005/04/14 16:23:01  mjk
 # *** empty log message ***
 #
@@ -50,6 +53,7 @@ include Rules.mk
 
 rpm::
 	rpmbuild --rebuild --nodeps *.src.rpm
-	cp /usr/src/redhat/RPMS/$(ARCH)/gfarm*.rpm ../../RPMS/$(ARCH)/
+	if [ ! -d ../../RPMS/$(ARCH) ]; then mkdir -p ../../RPMS/$(ARCH); fi
+	cp /usr/src/redhat/RPMS/$(ARCH)/gfarm*.rpm ../../RPMS/$(ARCH)
 
 
