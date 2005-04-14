@@ -34,6 +34,9 @@
 
 	<changelog>
 	$Log$
+	Revision 1.5  2005/04/14 18:11:28  mjk
+	*** empty log message ***
+	
 	Revision 1.4  2005/04/14 16:42:17  mjk
 	*** empty log message ***
 	
@@ -47,6 +50,8 @@
 
 	<package>gfarm-server</package>
 	<package>gfarm-doc</package>
+	<package>gfarm-dbreport</package>
+	<package>rocks-gfarm</package>
 
 	<package>openldap</package>
 	<package>openldap-devel</package>
@@ -57,6 +62,14 @@
 
 /opt/rocks/sbin/add-new-appliance --appliance-name 'Gfarm FS Node' \
         --xml-config-file-name gfarm-data
+
+<file name="/etc/rc.d/rocksconfig.d/post-50-gfarm-server" perms="744">
+#!/bin/sh
+
+config-gfarm > /dev/null
+
+rm /etc/rc.d/rocksconfig.d/post-50-gfarm-server
+</file>
 
 </post>
 

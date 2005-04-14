@@ -34,6 +34,9 @@
 
 	<changelog>
 	$Log$
+	Revision 1.5  2005/04/14 18:11:28  mjk
+	*** empty log message ***
+	
 	Revision 1.4  2005/04/14 16:42:17  mjk
 	*** empty log message ***
 	
@@ -46,5 +49,24 @@
 	</changelog>
 
 	<package>gfarm-fsnode</package>
+
+<post>
+
+<file name="/etc/gfarm.conf">
+<eval>
+cat /etc/gfarm.conf
+</eval>
+</file>
+
+<file name="/etc/rc.d/rocksconfig.d/post-50-gfarm-data" perms="744">
+#!/bin/sh
+
+config-gfsd /state/partition1/gfarm > /dev/null
+
+rm /etc/rc.d/rocksconfig.d/post-50-gfarm-data
+</file>
+
+</post>
+
 
 </kickstart>
