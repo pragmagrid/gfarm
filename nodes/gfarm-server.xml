@@ -34,6 +34,9 @@
 
 	<changelog>
 	$Log$
+	Revision 1.7  2005/04/14 22:56:32  mjk
+	*** empty log message ***
+	
 	Revision 1.6  2005/04/14 18:24:01  mjk
 	name like gfs-0-0
 	
@@ -63,7 +66,7 @@
 
 <post>
 
-/opt/rocks/sbin/add-new-appliance --appliance-name 'gfs' \
+/opt/rocks/sbin/add-new-appliance --appliance-name gfs \
         --xml-config-file-name gfarm-data
 
 <file name="/etc/rc.d/rocksconfig.d/post-50-gfarm-server" perms="744">
