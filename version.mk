@@ -1,0 +1,4 @@
+RELEASE = 0
+COLOR = Red
+
+REDHAT.ROOT = $(PWD)
