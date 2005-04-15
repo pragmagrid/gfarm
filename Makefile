@@ -1,3 +1,4 @@
+#
 # $Id$
 #
 # @Copyright@
@@ -26,19 +27,12 @@
 # @Copyright@
 #
 # $Log$
-# Revision 1.3  2005/04/14 16:42:17  mjk
-# *** empty log message ***
-#
-# Revision 1.2  2005/04/14 16:09:38  mjk
-# *** empty log message ***
-#
-# Revision 1.1  2005/04/14 16:09:20  mjk
+# Revision 1.4  2005/04/15 00:39:13  mjk
 # *** empty log message ***
 #
 
 SELFCONTAINED = 1
 COPYRIGHT.FILE = $(shell pwd)/COPYRIGHT
-
 ROLLSROOT = ..
 -include $(ROLLSROOT)/etc/Rolls.mk
 include Rolls.mk
