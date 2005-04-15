@@ -34,6 +34,10 @@
 
 	<changelog>
 	$Log$
+	Revision 1.8  2005/04/15 00:40:38  mjk
+	- Changed name of gfarm nodes to gfarm-x-y
+	- Gfarm Roll works for inside the cluster
+	
 	Revision 1.7  2005/04/14 22:56:32  mjk
 	*** empty log message ***
 	
@@ -66,7 +70,7 @@
 
 <post>
 
-/opt/rocks/sbin/add-new-appliance --appliance-name gfs \
+/opt/rocks/sbin/add-new-appliance --appliance-name gfarm \
         --xml-config-file-name gfarm-data
 
 <file name="/etc/rc.d/rocksconfig.d/post-50-gfarm-server" perms="744">
