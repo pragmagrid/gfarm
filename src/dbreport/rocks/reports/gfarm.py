@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /opt/rocks/usr/bin/python
 #
 # $RCSfile$
 #
@@ -28,6 +28,9 @@
 # @Copyright@
 #
 # $Log$
+# Revision 1.3  2005/08/08 21:24:58  mjk
+# foundation
+#
 # Revision 1.2  2005/04/14 14:04:31  mjk
 # *** empty log message ***
 #
