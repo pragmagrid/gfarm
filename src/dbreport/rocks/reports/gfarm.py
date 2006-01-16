@@ -1,4 +1,4 @@
-#! /opt/rocks/usr/bin/python
+#! /opt/rocks/bin/python
 #
 # $RCSfile$
 #
@@ -50,6 +50,9 @@
 # @Copyright@
 #
 # $Log$
+# Revision 1.5  2006/01/16 06:49:08  mjk
+# fix python path for source built foundation python
+#
 # Revision 1.4  2005/10/12 18:09:30  mjk
 # final copyright for 4.1
 #

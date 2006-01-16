@@ -56,6 +56,9 @@
 
 	<changelog>
 	$Log$
+	Revision 1.6  2006/01/16 06:49:07  mjk
+	fix python path for source built foundation python
+	
 	Revision 1.5  2005/10/12 18:09:29  mjk
 	final copyright for 4.1
 	
@@ -72,5 +75,6 @@
 
 	<package>gfarm-libs</package>
 	<package>gfarm-client</package>
+	<package>fuse</package>
 
 </kickstart>
