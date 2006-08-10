@@ -6,9 +6,9 @@
 # 
 # 				Rocks
 # 		         www.rocksclusters.org
-# 		           version 4.1 (fuji)
+# 		        version 4.2  (Hallasan)
 # 
-# Copyright (c) 2005 The Regents of the University of California. All
+# Copyright (c) 2006 The Regents of the University of California. All
 # rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -26,8 +26,8 @@
 # software must display the following acknowledgement: 
 # 
 # 	"This product includes software developed by the Rocks 
-# 	Cluster Group at the San Diego Supercomputer Center and
-# 	its contributors."
+# 	Cluster Group at the San Diego Supercomputer Center at the
+# 	University of California, San Diego and its contributors."
 # 
 # 4. Neither the name or logo of this software nor the names of its
 # authors may be used to endorse or promote products derived from this
@@ -50,6 +50,9 @@
 # @Copyright@
 #
 # $Log$
+# Revision 1.6  2006/08/10 00:10:45  mjk
+# 4.2 copyright
+#
 # Revision 1.5  2006/01/16 06:49:08  mjk
 # fix python path for source built foundation python
 #
