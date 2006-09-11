@@ -6,7 +6,7 @@
 # 
 # 				Rocks
 # 		         www.rocksclusters.org
-# 		        version 4.2  (Hallasan)
+# 		        version 4.2.1 (Cydonia)
 # 
 # Copyright (c) 2006 The Regents of the University of California. All
 # rights reserved.
@@ -19,11 +19,12 @@
 # notice, this list of conditions and the following disclaimer.
 # 
 # 2. Redistributions in binary form must reproduce the above copyright
-# notice, this list of conditions and the following disclaimer in the
-# documentation and/or other materials provided with the distribution.
+# notice unmodified and in its entirety, this list of conditions and the
+# following disclaimer in the documentation and/or other materials provided 
+# with the distribution.
 # 
-# 3. All advertising materials mentioning features or use of this
-# software must display the following acknowledgement: 
+# 3. All advertising and press materials, printed or electronic, mentioning
+# features or use of this software must display the following acknowledgement: 
 # 
 # 	"This product includes software developed by the Rocks 
 # 	Cluster Group at the San Diego Supercomputer Center at the
@@ -50,6 +51,9 @@
 # @Copyright@
 #
 # $Log$
+# Revision 1.7  2006/09/11 22:48:39  mjk
+# monkey face copyright
+#
 # Revision 1.6  2006/08/10 00:10:45  mjk
 # 4.2 copyright
 #
