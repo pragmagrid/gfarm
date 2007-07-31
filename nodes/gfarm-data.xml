@@ -4,7 +4,7 @@
 
 
 	<description>
-	Grid Data Farm 
+	Grid Data Farm FS node support
 	</description>
 
 	<copyright>
@@ -14,6 +14,9 @@
 
 	<changelog>
 	$Log$
+	Revision 1.10  2007/07/31 17:09:04  nadya
+	accommodate new gfarm srpms
+	
 	Revision 1.9  2007/06/23 04:03:36  mjk
 	mars hill copyright
 	
@@ -43,6 +46,9 @@
 	<package>gfarm-fsnode</package>
 
 <post>
+### Put the Gfarm FS node in the database
+GFFSNode=<var name="Kickstart_PublicHostname"/>
+/opt/rocks/bin/rocks add var service=Gfarm component=FSNode value=$GFFSNode
 
 <file name="/etc/gfarm.conf">
 <eval>
@@ -59,6 +65,5 @@ rm /etc/rc.d/rocksconfig.d/post-50-gfarm-data
 </file>
 
 </post>
-
 
 </kickstart>

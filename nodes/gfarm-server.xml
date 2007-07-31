@@ -4,7 +4,7 @@
 
 
 	<description>
-	Grid Data Farm 
+	Grid Data Farm Frontend support
 	</description>
 
 	<copyright>
@@ -14,6 +14,9 @@
 
 	<changelog>
 	$Log$
+	Revision 1.13  2007/07/31 17:09:04  nadya
+	accommodate new gfarm srpms
+	
 	Revision 1.12  2007/06/23 04:03:36  mjk
 	mars hill copyright
 	
@@ -55,20 +58,26 @@
 	<package>gfarm-dbreport</package>
 	<package>rocks-gfarm</package>
 
-	<package>openldap</package>
-	<package>openldap-devel</package>
-	<package>openldap-clients</package>
-	<package>openldap-servers</package>
+	<package>postgresql</package>
+	<package>postgresql-libs</package>
+	<package>postgresql-server</package>
+	<package>postgresql-devel</package>
+	<package>postgresql-contrib</package>
 
 <post>
 
-/opt/rocks/sbin/add-new-appliance --appliance-name gfarm \
-        --xml-config-file-name gfarm-data
+/opt/rocks/sbin/add-new-appliance \
+        --appliance-name gfarm \
+        --xml-config-file-name gfarm-data \
+		--short-name gf
 
 <file name="/etc/rc.d/rocksconfig.d/post-50-gfarm-server" perms="744">
 #!/bin/sh
 
-config-gfarm > /dev/null
+INTERACTIVE=false /sbin/runuser postgres -c '/bin/rm -f $HOME/.ssh/id_rsa.pub'
+INTERACTIVE=false /sbin/runuser postgres -c 'ssh-keygen -t rsa -N "" -f $HOME/.ssh/id_rsa.pub'
+
+config-gfarm  -b postgresql > /dev/null
 
 rm /etc/rc.d/rocksconfig.d/post-50-gfarm-server
 </file>
