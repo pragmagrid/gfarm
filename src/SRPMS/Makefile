@@ -54,6 +54,9 @@
 # @Copyright@
 #
 # $Log$
+# Revision 1.9  2007/07/31 15:05:26  nadya
+# add srpms names
+#
 # Revision 1.8  2007/06/23 04:03:36  mjk
 # mars hill copyright
 #
@@ -91,8 +94,11 @@ ROCKSROOT = ../../../../..
 -include $(ROCKSROOT)/etc/Rules.mk
 include Rules.mk
 
+SRC_RPMS = $(FUSE)-$(FUSE_VERSION).src.rpm \
+           $(GFARM)-$(GFARM_VERSION).src.rpm \
+		   $(GFARMFS_FUSE)-$(GFARMFS_FUSE_VERSION).src.rpm
 rpm::
-	rpmbuild --rebuild --nodeps *.src.rpm
+	rpmbuild --rebuild --nodeps $(SRC_RPMS)
 	if [ ! -d ../../RPMS/$(ARCH) ]; then mkdir -p ../../RPMS/$(ARCH); fi
 	cp /usr/src/redhat/RPMS/$(ARCH)/gfarm*.rpm ../../RPMS/$(ARCH)
 
