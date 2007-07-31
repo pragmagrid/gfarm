@@ -1,0 +1,8 @@
+FUSE = fuse
+FUSE_VERSION = 2.6.3-0
+
+GFARM = gfarm
+GFARM_VERSION = 1.4.0-0
+
+GFARMFS_FUSE = gfarmfs-fuse
+GFARMFS_FUSE_VERSION = 2.0.0-1
