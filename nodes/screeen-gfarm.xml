@@ -1,0 +1,67 @@
+<?xml version="1.0" standalone="no"?>
+
+<kickstart>
+
+	<description>
+	</description>
+
+	<copyright>
+	Copyright (c) 2000 - 2007 The Regents of the University of California.
+	All rights reserved. Rocks(tm) v4.3 www.rocksclusters.org
+	</copyright>
+
+	<changelog>
+	$Log$
+	Revision 1.1  2007/07/31 17:07:15  nadya
+	initial revision
+	
+
+	</changelog>
+
+<screen>
+
+	<title>Gfarm Configuration</title>
+
+	<code>
+		<include file="javascript/gfarm.js"/>
+	</code>
+
+	<variable>
+		<label>Gfarm Metaserver Host:</label>
+		<name>Gfarm_MetaServer</name>
+		<type>string</type>
+		<size>20</size>
+		<default>pine.hpcc.jp</default>
+		<value><var name="Gfarm_MetaServer"/></value>
+		<help>Select a Gfarm Metaserver host for your cluster.</help>
+		<validate>check_gfhost</validate>
+	</variable>
+
+	<variable>
+		<label>Gfarm Agent Host:</label>
+		<name>Gfarm_Agent</name>
+		<type>string</type>
+		<size>20</size>
+		<default><var name="Kickstart_PublicAddress"/></default>
+		<value><var name="Gfarm_Agent"/></value>
+		<help>Select a Gfarm agent host if different from your forntend.</help>
+		<validate>check_gfhost</validate>
+	</variable>
+
+	<variable>
+		<label>This host is Gfarm FS Node:</label>
+		<name>Gfarm_FSNode</name>
+		<type>menu</type>
+		<size>1</size>
+		<option><var name="Kickstart_PublicAddress"/></option>
+		<option>none</option>
+		<default><var name="Kickstart_PublicAddress"/></default>
+		<value><var name="Gfarm_FSNode"/></value>
+		<help>Select none if this host is not a Gfarm FS node.</help>
+		<validate>check_ntp</validate>
+	</variable>
+
+</screen>
+
+</kickstart> 
+
