@@ -56,6 +56,9 @@
 # @Copyright@
 #
 # $Log$
+# Revision 1.9  2007/08/07 21:48:38  nadya
+# add postgresql and agent info. Use new gfarm service/component
+#
 # Revision 1.8  2007/06/23 04:03:37  mjk
 # mars hill copyright
 #
@@ -91,16 +94,26 @@ class Report(rocks.reports.base.ReportBase):
 
 	def run(self):
 		self.execute('select value from app_globals where '
-			'service="Kickstart" and component="PrivateHostname"')
+			'service="Gfarm" and component="Agent"')
+		agentServer = self.fetchone()
+
+		self.execute('select value from app_globals where '
+			'service="Gfarm" and component="MetaServer"')
 		metaServer = self.fetchone()
-		ldapServer = metaServer
+		pgsqlServer = metaServer
 
 		print 'spool /state/partition1/gfarm'
+		print 'spool_serverport 600'
 		print 'metadb_serverhost %s' % metaServer
-		print 'ldap_serverhosts %s' % ldapServer
-		print 'ldap_serverport 389'
-		print 'ldap_base_dn "dc=example, dc=com"'
+		print 'metadb_serverport 601'
+		print 'postgresql_serverhost %s' % pgsqlServer
+		print 'postgresql_serverport 10602'
+		print 'postgresql_dbname gfarm'
+		print 'postgresql_user gfarm'
 		print 'auth disable sharedsecret *'
+		print 'auth enable gsi_auth *'
 		print 'auth enable gsi *'
-
+		if agentServer is not None:
+			print 'agent_serverhost %s' % agentServer
+			print 'agent_serverport 603'
 
