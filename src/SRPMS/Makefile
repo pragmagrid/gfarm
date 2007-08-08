@@ -54,6 +54,9 @@
 # @Copyright@
 #
 # $Log$
+# Revision 1.10  2007/08/08 08:49:35  nadya
+# remove cp line. it brings old rpms
+#
 # Revision 1.9  2007/07/31 15:05:26  nadya
 # add srpms names
 #
@@ -100,6 +103,5 @@ SRC_RPMS = $(FUSE)-$(FUSE_VERSION).src.rpm \
 rpm::
 	rpmbuild --rebuild --nodeps $(SRC_RPMS)
 	if [ ! -d ../../RPMS/$(ARCH) ]; then mkdir -p ../../RPMS/$(ARCH); fi
-	cp /usr/src/redhat/RPMS/$(ARCH)/gfarm*.rpm ../../RPMS/$(ARCH)
 
 
