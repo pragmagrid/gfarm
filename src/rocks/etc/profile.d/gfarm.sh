@@ -54,6 +54,9 @@
 # @Copyright@
 #
 # $Log$
+# Revision 1.7  2007/08/08 08:45:12  nadya
+# create aliases
+#
 # Revision 1.6  2007/06/23 04:03:37  mjk
 # mars hill copyright
 #
@@ -72,4 +75,6 @@
 # Revision 1.1  2005/04/14 13:29:41  mjk
 # *** empty log message ***
 #
+
+gfcd() { eval "`gfsetdir -s $1`"; }
 
