@@ -55,16 +55,31 @@
  * @Copyright@
  * 
  * $Log$
+ * Revision 1.2  2007/08/08 12:58:10  nadya
+ * add verification function for each form field
+ *
  * Revision 1.1  2007/08/07 11:48:48  nadya
  * initial revision
  *
  *
  */
 
-function check_gfhost(e)
+function check_name(hostname)
+{
+	var retval = true;
+
+	if (check_fqdn(hostname) == false) {
+		if (check_ipaddr(hostname) == false) {
+			retval = false;
+		}
+	}
+
+	return(retval);
+}
+
+function check_GFmetaserver(e)
 {
 	var doc = top.workarea.document;
-	var retval = true;
 
 	/*
 	 * the user-input variable
@@ -72,12 +87,34 @@ function check_gfhost(e)
 	var MetaServer = doc.getElementsByName(
 					'Gfarm_MetaServer')[0];
 
-	if (check_fqdn(MetaServer) == false) {
-		if (check_ipaddr(MetaServer) == false) {
-			retval = false;
-		}
-	}
+	return(check_name(MetaServer));
+}
 
-	return(retval);
+function check_GFagent(e)
+{
+	var doc = top.workarea.document;
+
+	/*
+	 * the user-input variable
+	 */
+	var Agent = doc.getElementsByName(
+					'Gfarm_Agent')[0];
+
+	return(check_name(Agent));
+}
+
+function check_GFfsnode(e)
+{
+	var doc = top.workarea.document;
+
+	/*
+	 * the user-input variable
+	 */
+	var FSNode = doc.getElementsByName(
+					'Gfarm_FSNode')[0];
+	if (FSNode == "No")
+		retrn(true)
+
+	return(check_name(Agent));
 }
 
