@@ -12,6 +12,10 @@
 
 	<changelog>
 	$Log$
+	Revision 1.3  2007/08/08 12:57:04  nadya
+	use public host name in form fields
+	add verification function for each form field
+	
 	Revision 1.2  2007/08/07 11:49:20  nadya
 	initial revision
 	
@@ -37,7 +41,7 @@
 		<default>pine.hpcc.jp</default>
 		<value><var name="Gfarm_MetaServer"/></value>
 		<help>Select a Gfarm Metaserver host for your cluster.</help>
-		<validate>check_gfhost</validate>
+		<validate>check_GFmetaserver</validate>
 	</variable>
 
 	<variable>
@@ -45,23 +49,23 @@
 		<name>Gfarm_Agent</name>
 		<type>string</type>
 		<size>20</size>
-		<default><var name="Kickstart_PublicAddress"/></default>
+		<default><var name="Kickstart_PublicHostname"/></default>
 		<value><var name="Gfarm_Agent"/></value>
 		<help>Select a Gfarm agent host. Default is frontend.</help>
-		<validate>check_gfhost</validate>
+		<validate>check_GFagent</validate>
 	</variable>
 
 	<variable>
-		<label>This host is Gfarm FS Node:</label>
+		<label>Gfarm FS Node:</label>
 		<name>Gfarm_FSNode</name>
 		<type>menu</type>
 		<size>1</size>
-		<option><var name="Kickstart_PublicAddress"/></option>
-		<option>none</option>
-		<default><var name="Kickstart_PublicAddress"/></default>
+		<option><var name="Kickstart_PublicHostname"/></option>
+		<option>No</option>
+		<default><var name="Kickstart_PublicHostname"/></default>
 		<value><var name="Gfarm_FSNode"/></value>
-		<help>Select none if this host is not a Gfarm FS node.</help>
-		<validate>check_gfhost</validate>
+		<help>Select if this host is a Gfarm FS node. Default is frontend.</help>
+		<validate>check_GFfsnode</validate>
 	</variable>
 
 </screen>
