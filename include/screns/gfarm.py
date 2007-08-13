@@ -59,11 +59,6 @@ class GFarmInfoWindow:
 		leftGrid.setField(self.metaserver, x, y, anchorLeft = 1)
 		y += 1
 
-		leftGrid.setField(self.label("Gfarm Agent:"), x, y, anchorLeft = 1)
-		y += 1
-		leftGrid.setField(self.agent, x, y, anchorLeft = 1)
-		y += 1
-
 		leftGrid.setField(self.label("Gfarm FS Node:"), x, y, anchorLeft = 1)
 		y += 1
 		leftGrid.setField(self.fsnode, x, y, anchorLeft = 1)
