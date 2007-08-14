@@ -17,30 +17,31 @@ class GFarmInfoWindow:
 
 
 	def nameCb(self):
-		fqdn = self.fqdn.value()
-		#self.contact.set('admin@%s' % fqdn)
-		#self.url.set('http://%s/' % fqdn)
+		fqdn = self.metaserver.value()
 		domains = fqdn.split('.')
 		if len(domains) > 2:
 			org = domains[-2]
 			name = domains[0]
-			#self.org.set(org.capitalize())
-			#self.name.set(name.capitalize())
 
+	def valCb(self, field):
+		if string.capitalize(field.value()) == 'None':
+			field.set('None')
 
 	def __call__(self, screen, Info):
+		self.screen = screen
+		retval = INSTALL_OK
 
 		default = "pine.hpcc.jp"
-		self.metaserver = Entry(24)
-		self.metaserver.set(default)
+		self.metaserver = Entry(24, default)
+		self.metaserver.setCallback(self.nameCb)
 
-		default = ""
-		self.agent = Entry(24)
-		self.agent.set(default)
+		default = "cluster.hpc.org"
+		self.agent = Entry(24, default)
+		self.agent.setCallback(self.valCb, (self.agent))
 
-		default = ""
-		self.fsnode = Entry(24)
-		self.fsnode.set(default)
+		default = "cluster.hpc.org"
+		self.fsnode = Entry(24, default)
+		self.fsnode.setCallback(self.valCb, (self.fsnode))
 
 		bb = ButtonBar (screen, (TEXT_OK_BUTTON, ("Back","back")))
 		toplevel = GridFormHelp (screen, _("Gfarm Setup Information"), "", 1, 3)
@@ -59,6 +60,11 @@ class GFarmInfoWindow:
 		leftGrid.setField(self.metaserver, x, y, anchorLeft = 1)
 		y += 1
 
+		leftGrid.setField(self.label("Gfarm Agent:"), x, y, anchorLeft = 1)
+		y += 1
+		leftGrid.setField(self.agent, x, y, anchorLeft = 1)
+		y += 1
+
 		leftGrid.setField(self.label("Gfarm FS Node:"), x, y, anchorLeft = 1)
 		y += 1
 		leftGrid.setField(self.fsnode, x, y, anchorLeft = 1)
@@ -70,19 +76,37 @@ class GFarmInfoWindow:
 		toplevel.add(infoGrid, 0, 1, anchorTop=1)
 		toplevel.add(bb, 0, 2, growx=0)
 
-		result = toplevel.runOnce()
+		done = 0
+		while not done:
+			fieldlabel = ''
 
-		Info.Metaserver = self.metaserver.value()
-		Info.Agent = self.agent.value()
-		Info.FSNode = self.fsnode.value()
+			result = toplevel.run()
 
-		rc = bb.buttonPressed(result)
+			rc = bb.buttonPressed(result)
+			if rc == "back":
+				retval = INSTALL_BACK
+				done = 1
+				continue
 
-		if rc == "back":
-			return INSTALL_BACK
+			Info.Metaserver = self.metaserver.value()
+			Info.Agent = self.agent.value()
+			Info.FSNode = self.fsnode.value()
 
-		return INSTALL_OK
+			if Info.Agent == 'cluster.hpc.org':
+				fieldlabel = _("Gfarm Agent")
+			elif Info.FSNode == 'cluster.hpc.org':
+				fieldlabel = _("Gfarm FS Node")
+			else:
+				done = 1
 
+			if done == 0:
+				ButtonChoiceWindow(screen, "",
+					(_("You must supply a value for the\n"
+						"'%s' or use NONE") % (fieldlabel)),
+				buttons = [ TEXT_OK_BUTTON ], width = 50)
+
+		screen.popWindow()
+		return retval
 
 
 if __name__ == '__main__':
