@@ -48,6 +48,9 @@
 # @Copyright@
 #
 # $Log$
+# Revision 1.5.4.2  2007/08/14 17:35:02  nadya
+# specify rpms to avoid picking old versions
+#
 # Revision 1.5.4.1  2007/08/13 20:31:32  nadya
 # bring from 4.3
 #
@@ -86,6 +89,7 @@ SRC_RPMS = $(FUSE)-$(FUSE_VERSION).src.rpm \
 rpm::
 	rpmbuild --rebuild --nodeps *.src.rpm
 	if [ ! -d ../../RPMS/$(ARCH) ]; then mkdir -p ../../RPMS/$(ARCH); fi
-	cp /usr/src/redhat/RPMS/$(ARCH)/gfarm*.rpm ../../RPMS/$(ARCH)
-
+	cp /usr/src/redhat/RPMS/$(ARCH)/$(GFARM)*$(GFARM_VERSION)*$(ARCH).rpm ../../RPMS/$(ARCH)
+	cp /usr/src/redhat/RPMS/$(ARCH)/$(FUSE)*$(FUSE_VERSION)*$(ARCH).rpm ../../RPMS/$(ARCH)
+	cp /usr/src/redhat/RPMS/$(ARCH)/$(GFARMFS_FUSE)*$(GFARMFS_FUSE_VERSION)*$(ARCH).rpm ../../RPMS/$(ARCH)
 
