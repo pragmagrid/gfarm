@@ -56,6 +56,10 @@
 
 	<changelog>
 	$Log$
+	Revision 1.5.4.2  2007/08/17 21:55:04  nadya
+	add gfarm-config package
+	add globus-dependency packages
+	
 	Revision 1.5.4.1  2007/08/13 16:22:05  nadya
 	bring from 4.3
 	
@@ -73,6 +77,7 @@
 	
 	</changelog>
 
+	<package>gfarm-config</package>
 	<package>gfarm-libs</package>
 	<package>gfarm-client</package>
 	<package>gfarmfs-fuse</package>
@@ -81,11 +86,18 @@
 	<package>fuse-kernel</package>
 	<package>fuse-libs</package>
 
+	<package>globus-gpt</package>
+	<package>globus-proxy-utils-gcc32</package>
+	<package>globus-gssapi-gsi-gcc32</package>
+
+
 <post>
 <file name="/etc/rc.d/rocksconfig.d/post-50-gfarm-base" perms="744">
 #!/bin/sh
 
 /sbin/modprobe fuse
+chmod 666 /dev/fuse
+
 rm /etc/rc.d/rocksconfig.d/post-50-gfarm-base
 
 </file>
