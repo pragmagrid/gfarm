@@ -49,6 +49,9 @@
 # @Copyright@
 #
 # $Log$
+# Revision 1.1.2.2  2007/08/23 09:09:46  nadya
+# get the name right
+#
 # Revision 1.1.2.1  2007/08/17 22:01:30  nadya
 # add fuse src rpm to the roll for a rebuild during first boot.
 #
@@ -66,7 +69,7 @@ version.mk: version.mk.in
 
 install::
 	mkdir -p $(RPM_BUILD_ROOT)/opt/rocks/SRPMS
-	rm -f $(REDHAT.SRPMS)/gm-config*src.rpm 
+	rm -f $(REDHAT.SRPMS)/gfarm-config*src.rpm 
 	cp $(REDHAT.ROOT)/src/SRPMS/$(FUSE)-$(FUSE_VERSION).src.rpm $(RPM_BUILD_ROOT)/opt/rocks/SRPMS
 
 clean::
