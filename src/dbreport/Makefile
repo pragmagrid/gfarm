@@ -3,12 +3,12 @@
 #
 # @Copyright@
 # 
-# 				Rocks(tm)
+# 				Rocks
 # 		         www.rocksclusters.org
-# 		        version 4.3 (Mars Hill)
+# 		           version 4.1 (fuji)
 # 
-# Copyright (c) 2000 - 2007 The Regents of the University of California.
-# All rights reserved.	
+# Copyright (c) 2005 The Regents of the University of California. All
+# rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are
@@ -18,27 +18,21 @@
 # notice, this list of conditions and the following disclaimer.
 # 
 # 2. Redistributions in binary form must reproduce the above copyright
-# notice unmodified and in its entirety, this list of conditions and the
-# following disclaimer in the documentation and/or other materials provided 
-# with the distribution.
+# notice, this list of conditions and the following disclaimer in the
+# documentation and/or other materials provided with the distribution.
 # 
-# 3. All advertising and press materials, printed or electronic, mentioning
-# features or use of this software must display the following acknowledgement: 
+# 3. All advertising materials mentioning features or use of this
+# software must display the following acknowledgement: 
 # 
-# 	"This product includes software developed by the Rocks(tm)
-# 	Cluster Group at the San Diego Supercomputer Center at the
-# 	University of California, San Diego and its contributors."
+# 	"This product includes software developed by the Rocks 
+# 	Cluster Group at the San Diego Supercomputer Center and
+# 	its contributors."
 # 
-# 4. Except as permitted for the purposes of acknowledgment in paragraph 3,
-# neither the name or logo of this software nor the names of its
+# 4. Neither the name or logo of this software nor the names of its
 # authors may be used to endorse or promote products derived from this
 # software without specific prior written permission.  The name of the
 # software includes the following terms, and any derivatives thereof:
-# "Rocks", "Rocks Clusters", and "Avalanche Installer".  For licensing of 
-# the associated name, interested parties should contact Technology 
-# Transfer & Intellectual Property Services, University of California, 
-# San Diego, 9500 Gilman Drive, Mail Code 0910, La Jolla, CA 92093-0910, 
-# Ph: (858) 534-5815, FAX: (858) 534-7345, E-MAIL:invent@ucsd.edu
+# "Rocks", "Rocks Clusters", and "Avalanche Installer".
 # 
 # THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS''
 # AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
@@ -55,14 +49,8 @@
 # @Copyright@
 #
 # $Log$
-# Revision 1.6  2007/06/23 04:03:37  mjk
-# mars hill copyright
-#
-# Revision 1.5  2006/09/11 22:48:39  mjk
-# monkey face copyright
-#
-# Revision 1.4  2006/08/10 00:10:45  mjk
-# 4.2 copyright
+# Revision 1.3.4.1  2007/08/24 15:28:25  nadya
+# put gfarm dbreport under the foundation, rm spec file
 #
 # Revision 1.3  2005/10/12 18:09:30  mjk
 # final copyright for 4.1
@@ -83,6 +71,14 @@ ROCKSROOT = ../../../../..
 -include $(ROCKSROOT)/etc/Rules.mk
 include Rules.mk
 
-install::
-	install -ma+r  $(REPORTS) $(ROOT)/$(PKGROOT)/lib/python/rocks/reports/
+-include $(ROCKSROOT)/etc/python.mk
+include python.mk
 
+build:
+
+install::
+	mkdir -p $(ROOT)/$(PY.ROCKS)/rocks/reports/
+	install -ma+r  $(REPORTS) $(ROOT)/$(PY.ROCKS)/rocks/reports/
+
+clean::
+	rm -f $(NAME).spec.in
