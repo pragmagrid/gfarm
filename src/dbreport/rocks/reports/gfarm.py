@@ -50,6 +50,9 @@
 # @Copyright@
 #
 # $Log$
+# Revision 1.4.4.2  2007/08/27 20:41:33  nadya
+# add Gfarm in Component name
+#
 # Revision 1.4.4.1  2007/08/13 20:26:16  nadya
 # bring from 4.3
 #
@@ -76,11 +79,11 @@ class Report(rocks.reports.base.ReportBase):
 
 	def run(self):
 		self.execute('select value from app_globals where '
-			'service="Gfarm" and component="Agent"')
+			'service="Info" and component="GfarmAgent"')
 		agentServer = self.fetchone()
 
 		self.execute('select value from app_globals where '
-			'service="Gfarm" and component="MetaServer"')
+			'service="Info" and component="GfarmMetaServer"')
 		metaServer = self.fetchone()
 		pgsqlServer = metaServer
 
