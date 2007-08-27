@@ -56,6 +56,9 @@
 
 	<changelog>
 	$Log$
+	Revision 1.5.4.3  2007/08/27 20:13:53  nadya
+	rebuild fuse-kernel rpm
+	
 	Revision 1.5.4.2  2007/08/17 21:55:04  nadya
 	add gfarm-config package
 	add globus-dependency packages
@@ -94,6 +97,11 @@
 <post>
 <file name="/etc/rc.d/rocksconfig.d/post-50-gfarm-base" perms="744">
 #!/bin/sh
+
+archname=`uname -i`
+rpm -ivh /usr/src/redhat/SRPMS/fuse-2.6.3-0.src.rpm
+rpmbuild -bb /usr/src/redhat/SPECS/fuse.spec
+rpm -Uvh --force /usr/src/redhat/RPMS/$archname/fuse-kernel-2.6.3-0.$archname.rpm
 
 /sbin/modprobe fuse
 chmod 666 /dev/fuse
