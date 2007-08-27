@@ -24,58 +24,52 @@ class GFarmInfoWindow:
 			name = domains[0]
 
 	def valCb(self, field):
-		if string.capitalize(field.value()) == 'None':
-			field.set('None')
+		if string.lower(field.value()) == 'localhost':
+			field.set('localhost')
 
 	def __call__(self, screen, Info):
 		self.screen = screen
 		retval = INSTALL_OK
 
+		infoGrid = Grid(2,3)
+		x, y = (0, 0)
+
+		# metaserver information
 		default = "pine.hpcc.jp"
 		self.metaserver = Entry(24, default)
 		self.metaserver.setCallback(self.nameCb)
 
-		default = "cluster.hpc.org"
+		infoGrid.setField(self.label("Gfarm Metaserver:"), x, y, anchorLeft = 1)
+		infoGrid.setField(self.metaserver, x+1, y, anchorLeft = 1)
+		y += 1
+
+		# agent information 
+		default = ""
 		self.agent = Entry(24, default)
 		self.agent.setCallback(self.valCb, (self.agent))
 
-		default = "cluster.hpc.org"
+		infoGrid.setField(self.label("Gfarm Agent:"), x, y, anchorLeft = 1)
+		infoGrid.setField(self.agent, x+1, y, anchorLeft = 1)
+		y += 1
+
+		# fs node information 
+		default = ""
 		self.fsnode = Entry(24, default)
 		self.fsnode.setCallback(self.valCb, (self.fsnode))
 
+		infoGrid.setField(self.label("Gfarm FS Node:"), x, y, anchorLeft = 1)
+		infoGrid.setField(self.fsnode, x+1, y, anchorLeft = 1)
+		y += 1
+
+		# build screen
 		bb = ButtonBar (screen, (TEXT_OK_BUTTON, ("Back","back")))
-		toplevel = GridFormHelp (screen, _("Gfarm Setup Information"), "", 1, 3)
-		leftGrid = Grid(1,12)
-		rightGrid = Grid(1,12)
-		infoGrid = Grid(2,1)
 
-		toplevel.add(self.label("Information Used to Configure GFarm"), 
-			0, 0, (0,0,0,1))
-
-		# Left column
-		x, y = (0, 0)
-		
-		leftGrid.setField(self.label("Gfarm Metaserver:"), x, y, anchorLeft = 1)
-		y += 1
-		leftGrid.setField(self.metaserver, x, y, anchorLeft = 1)
-		y += 1
-
-		leftGrid.setField(self.label("Gfarm Agent:"), x, y, anchorLeft = 1)
-		y += 1
-		leftGrid.setField(self.agent, x, y, anchorLeft = 1)
-		y += 1
-
-		leftGrid.setField(self.label("Gfarm FS Node:"), x, y, anchorLeft = 1)
-		y += 1
-		leftGrid.setField(self.fsnode, x, y, anchorLeft = 1)
-		y += 1
-
-		infoGrid.setField(leftGrid, 0,0, anchorLeft=1, anchorTop=1)
-		infoGrid.setField(rightGrid, 1,0, (2,0,0,0), anchorLeft=1, anchorTop=1)
-
-		toplevel.add(infoGrid, 0, 1, anchorTop=1)
+		toplevel = GridFormHelp (screen, _("Gfarm Information"), "Gfarm Info", 1, 3)
+		toplevel.add(self.label("Information Used to Configure GFarm"), 0, 0, (0,0,0,1))
+		toplevel.add(infoGrid, 0, 1, anchorTop=1, anchorLeft=1)
 		toplevel.add(bb, 0, 2, growx=0)
 
+		# get user answers
 		done = 0
 		while not done:
 			fieldlabel = ''
@@ -88,21 +82,21 @@ class GFarmInfoWindow:
 				done = 1
 				continue
 
-			Info.Metaserver = self.metaserver.value()
-			Info.Agent = self.agent.value()
-			Info.FSNode = self.fsnode.value()
+			Info.GfarmMetaserver = self.metaserver.value()
+			Info.GfarmAgent = self.agent.value()
+			Info.GfarmFSNode = self.fsnode.value()
 
-			if Info.Agent == 'cluster.hpc.org':
+			if Info.GfarmAgent == '':
 				fieldlabel = _("Gfarm Agent")
-			elif Info.FSNode == 'cluster.hpc.org':
+			elif Info.GfarmFSNode == '':
 				fieldlabel = _("Gfarm FS Node")
 			else:
 				done = 1
 
 			if done == 0:
 				ButtonChoiceWindow(screen, "",
-					(_("You must supply a value for the\n"
-						"'%s' or use NONE") % (fieldlabel)),
+					(_("You must supply a FQDN for the\n"
+						"'%s' or use localhost") % (fieldlabel)),
 				buttons = [ TEXT_OK_BUTTON ], width = 50)
 
 		screen.popWindow()
@@ -136,3 +130,4 @@ if __name__ == '__main__':
 
 else:
 	addScreen("GFarmInfoWindow")
+
