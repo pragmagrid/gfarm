@@ -56,6 +56,11 @@
 
 	<changelog>
 	$Log$
+	Revision 1.9.4.2  2007/08/27 20:21:33  nadya
+	add screen
+	do check for the metaserver installation
+	move add-new-appliance inside the metaserver configuration part
+	
 	Revision 1.9.4.1  2007/08/13 16:22:05  nadya
 	bring from 4.3
 	
@@ -97,19 +102,31 @@
 	<package>postgresql-devel</package>
 	<package>postgresql-contrib</package>
 
+	<installclass>
+	<include file="screens/gfarm.py"/>
+	</installclass>
+
 <post>
 
-/opt/rocks/sbin/add-new-appliance --appliance-name gfarm \
-        --xml-config-file-name gfarm-data --short-name gf
 
 <file name="/etc/rc.d/rocksconfig.d/post-50-gfarm-server" perms="744">
 #!/bin/sh
 
-INTERACTIVE=false /sbin/runuser postgres -c '/bin/rm -f $HOME/.ssh/id_rsa.pub'
-INTERACTIVE=false /sbin/runuser postgres -c 'ssh-keygen -t rsa -N "" -f
-$HOME/.ssh/id_rsa.pub'
+metaserver="<var name="Info_GfarmMetaserver"/>"
 
-config-gfarm  -b postgresql > /dev/null
+if [ $metaserver == 'localhost' ]; then
+   echo "update app_globals set Value='<var name="Info_ClusterFQDN"/>' where Component='GfarmMetaserver' and Value='localhost'" | mysql -u apache cluster
+
+   INTERACTIVE=false /sbin/runuser postgres -c '/bin/rm -f $HOME/.ssh/id_rsa.pub'
+   INTERACTIVE=false /sbin/runuser postgres -c 'ssh-keygen -t rsa -N "" -f
+   $HOME/.ssh/id_rsa.pub'
+
+   config-gfarm  -b postgresql > /dev/null
+
+   /opt/rocks/sbin/add-new-appliance --appliance-name gfarm \
+                                     --xml-config-file-name gfarm-data \
+									 --short-name gf
+fi
 
 rm /etc/rc.d/rocksconfig.d/post-50-gfarm-server
 </file>
