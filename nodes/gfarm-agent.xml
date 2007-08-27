@@ -55,6 +55,10 @@
 
 	<changelog>
 	$Log$
+	Revision 1.1.2.3  2007/08/27 21:46:25  nadya
+	update app_globals
+	add ports to iptables
+	
 	Revision 1.1.2.2  2007/08/14 17:24:07  nadya
 	add config file
 	
@@ -71,9 +75,9 @@
 <file name="/etc/gfarm.conf" perms="0644">
 spool /export/gfarm
 spool_serverport 600
-metadb_serverhost <var name="Info_Metaserver"/>
+metadb_serverhost <var name="Info_GfarmMetaserver"/>
 metadb_serverport 601
-postgresql_serverhost <var name="Info_Metaserver"/>
+postgresql_serverhost <var name="Info_GfarmMetaserver"/>
 postgresql_serverport 10602
 postgresql_dbname gfarm
 postgresql_user gfarm
@@ -84,14 +88,40 @@ auth enable gsi *
 sockopt keepalive
 sockopt sndbuf=33554432
 sockopt rcvbuf=33554432
-agent_serverhost <var name="Info_Agent"/>
+agent_serverhost <var name="Info_GfarmAgent"/>
 agent_serverport 603
+</file>
+
+<file name="/tmp/iptables-add" perms="744">
+
+# Gfarm ports
+-A INPUT -p tcp --dport 600 -j ACCEPT
+-A INPUT -p udp --dport 600 -j ACCEPT
+-A INPUT -p tcp --dport 601 -j ACCEPT
+-A INPUT -p udp --dport 601 -j ACCEPT
+-A INPUT -p tcp --dport 603 -j ACCEPT
+-A INPUT -p udp --dport 603 -j ACCEPT
+
 </file>
 
 <file name="/etc/rc.d/rocksconfig.d/post-50-gfarm-agent" perms="744">
 #!/bin/sh
 
-config-agent > /dev/null
+# add to iptables 
+exists=`grep "Gfarm ports" /etc/sysconfig/iptables | wc -l`
+if [ $exists  == '1' ]; then
+   rm /tmp/iptables-add
+else
+   cat /tmp/iptables-add &gt;&gt; /etc/sysconfig/iptables
+   rm /tmp/iptables-add
+fi
+
+agent="<var name="Info_GfarmAgent"/>"
+
+if [ $agent == 'localhost' ]; then
+   echo "update app_globals set Value='<var name="Info_ClusterFQDN"/>' where Component='GfarmAgent' and Value='localhost'" | mysql -u apache cluster
+   config-agent > /dev/null
+fi
 
 rm /etc/rc.d/rocksconfig.d/post-50-gfarm-agent
 </file>
