@@ -56,6 +56,10 @@
 
 	<changelog>
 	$Log$
+	Revision 1.5.4.3  2007/08/28 21:15:04  nadya
+	rm gfarm-agent from compute nodes
+	add ordering to have gfarm-base first
+	
 	Revision 1.5.4.2  2007/08/27 20:10:41  nadya
 	remove reference postgres server
 	add gfarm-agent and gfarm-data to compute nodes
@@ -74,6 +78,12 @@
 	
 	</changelog>
 
+    <order head="gfarm-base">
+        <tail>gfarm-server</tail>
+        <tail>gfarm-agent</tail>
+        <tail>gfarm-data</tail> 
+    </order>
+
     <edge from="server">
         <to>gfarm-server</to>
         <to>gfarm-agent</to>
@@ -81,7 +91,7 @@
     </edge>
 
     <edge from="compute">
-        <to>gfarm-agent</to>
+        <to>gfarm-base</to>
         <to>gfarm-data</to>
     </edge>
 
