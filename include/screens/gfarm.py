@@ -44,7 +44,7 @@ class GFarmInfoWindow:
 		y += 1
 
 		# agent information 
-		default = ""
+		default = "localhost"
 		self.agent = Entry(24, default)
 		self.agent.setCallback(self.valCb, (self.agent))
 
@@ -53,7 +53,7 @@ class GFarmInfoWindow:
 		y += 1
 
 		# fs node information 
-		default = ""
+		default = "localhost"
 		self.fsnode = Entry(24, default)
 		self.fsnode.setCallback(self.valCb, (self.fsnode))
 
