@@ -56,6 +56,9 @@
 
 	<changelog>
 	$Log$
+	Revision 1.6.4.4  2007/08/28 09:20:24  nadya
+	add missing space
+	
 	Revision 1.6.4.3  2007/08/27 21:46:25  nadya
 	update app_globals
 	add ports to iptables
@@ -136,12 +139,12 @@ fi
 
 fsndoe="<var name="Info_GfarmFSNode"/>"
 
-if [ $fsndoe == 'localhost']; then
+if [ $fsndoe == 'localhost' ]; then
    echo "update app_globals set Value='<var name="Info_ClusterFQDN"/>' where Component='GfarmFSNode' and Value='localhost'" | mysql -u apache cluster
    config-gfsd /state/partition1/gfarm > /dev/null
 fi
 
-rm /etc/rc.d/rocksconfig.d/post-50-gfarm-data
+#rm /etc/rc.d/rocksconfig.d/post-50-gfarm-data
 </file>
 
 </post>
