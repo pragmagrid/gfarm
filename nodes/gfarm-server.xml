@@ -56,6 +56,10 @@
 
 	<changelog>
 	$Log$
+	Revision 1.9.4.3  2007/08/28 21:20:53  nadya
+	move postgres packages to gfarm-base
+	rm gfarm-server rpm if not server.
+	
 	Revision 1.9.4.2  2007/08/27 20:21:33  nadya
 	add screen
 	do check for the metaserver installation
@@ -96,10 +100,7 @@
 	<package>gfarm-dbreport</package>
 	<package>rocks-gfarm</package>
 
-	<package>postgresql</package>
-	<package>postgresql-libs</package>
 	<package>postgresql-server</package>
-	<package>postgresql-devel</package>
 	<package>postgresql-contrib</package>
 
 	<installclass>
@@ -126,6 +127,8 @@ if [ $metaserver == 'localhost' ]; then
    /opt/rocks/sbin/add-new-appliance --appliance-name gfarm \
                                      --xml-config-file-name gfarm-data \
 									 --short-name gf
+else
+   rpm -el gfarm-server
 fi
 
 rm /etc/rc.d/rocksconfig.d/post-50-gfarm-server
