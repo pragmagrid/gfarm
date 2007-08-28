@@ -56,6 +56,10 @@
 
 	<changelog>
 	$Log$
+	Revision 1.6.4.5  2007/08/28 21:21:46  nadya
+	move gfarm.conf file creation and iptables additions to gfarm-base
+	rm gfarm-agent from compute nodes
+	
 	Revision 1.6.4.4  2007/08/28 09:20:24  nadya
 	add missing space
 	
@@ -93,58 +97,36 @@
 
 <post>
 
-<file name="/etc/gfarm.conf" perms="0644">
-spool /export/gfarm
-spool_serverport 600
-metadb_serverhost <var name="Info_GfarmMetaserver"/>
-metadb_serverport 601
-postgresql_serverhost <var name="Info_GfarmMetaserver"/>
-postgresql_serverport 10602
-postgresql_dbname gfarm
-postgresql_user gfarm
-postgresql_password "Rr6cSGWquzbXeQRsjCIsMFu06reMxkyPns4n4vmDk9c"
-auth disable sharedsecret *
-auth enable gsi_auth *
-auth enable gsi *
-sockopt keepalive
-sockopt sndbuf=33554432
-sockopt rcvbuf=33554432
-agent_serverhost <var name="Info_GfarmAgent"/>
-agent_serverport 603
-</file>
-
-<file name="/tmp/iptables-add" perms="744">
-
-# Gfarm ports
--A INPUT -p tcp --dport 600 -j ACCEPT
--A INPUT -p udp --dport 600 -j ACCEPT
--A INPUT -p tcp --dport 601 -j ACCEPT
--A INPUT -p udp --dport 601 -j ACCEPT
--A INPUT -p tcp --dport 603 -j ACCEPT
--A INPUT -p udp --dport 603 -j ACCEPT
-
-</file>
-
 <file name="/etc/rc.d/rocksconfig.d/post-50-gfarm-data" perms="744">
 #!/bin/sh
 
+# check for compute nodes for a second interface.  When none exit.
+addr=`cat /etc/sysconfig/network-scripts/ifcfg-eth1 | grep IPADDR| sed -e s/IPADDR=//`
+if [ "$addr" == "" ]; then
+   #rm /etc/rc.d/rocksconfig.d/post-50-gfarm-agent
+   rpm -el gfarm-fsnode gfarm-devel gfarm-gfptool fuse-devel
+   rm -f /tmp/iptables-add
+   exit
+fi
+
 # add to iptables 
 exists=`grep "Gfarm ports" /etc/sysconfig/iptables | wc -l`
-if [ $exists  == '1' ]; then 
-   rm /tmp/iptables-add
-else
-   cat /tmp/iptables-add &gt;&gt; /etc/sysconfig/iptables
-   rm /tmp/iptables-add
+if [ "$exists"  == "" ]; then 
+   if [ -f /tmp/iptables-add ]; then
+      cat /tmp/iptables-add &gt;&gt; /etc/sysconfig/iptables
+   fi
 fi
+rm -f /tmp/iptables-add
 
 fsndoe="<var name="Info_GfarmFSNode"/>"
 
 if [ $fsndoe == 'localhost' ]; then
    echo "update app_globals set Value='<var name="Info_ClusterFQDN"/>' where Component='GfarmFSNode' and Value='localhost'" | mysql -u apache cluster
-   config-gfsd /state/partition1/gfarm > /dev/null
 fi
 
-#rm /etc/rc.d/rocksconfig.d/post-50-gfarm-data
+config-gfsd /state/partition1/gfarm > /dev/null
+
+rm /etc/rc.d/rocksconfig.d/post-50-gfarm-data
 </file>
 
 </post>

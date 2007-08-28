@@ -55,6 +55,10 @@
 
 	<changelog>
 	$Log$
+	Revision 1.1.2.4  2007/08/28 21:21:46  nadya
+	move gfarm.conf file creation and iptables additions to gfarm-base
+	rm gfarm-agent from compute nodes
+	
 	Revision 1.1.2.3  2007/08/27 21:46:25  nadya
 	update app_globals
 	add ports to iptables
@@ -72,49 +76,17 @@
 
 <post>
 
-<file name="/etc/gfarm.conf" perms="0644">
-spool /export/gfarm
-spool_serverport 600
-metadb_serverhost <var name="Info_GfarmMetaserver"/>
-metadb_serverport 601
-postgresql_serverhost <var name="Info_GfarmMetaserver"/>
-postgresql_serverport 10602
-postgresql_dbname gfarm
-postgresql_user gfarm
-postgresql_password "Rr6cSGWquzbXeQRsjCIsMFu06reMxkyPns4n4vmDk9c"
-auth disable sharedsecret *
-auth enable gsi_auth *
-auth enable gsi *
-sockopt keepalive
-sockopt sndbuf=33554432
-sockopt rcvbuf=33554432
-agent_serverhost <var name="Info_GfarmAgent"/>
-agent_serverport 603
-</file>
-
-<file name="/tmp/iptables-add" perms="744">
-
-# Gfarm ports
--A INPUT -p tcp --dport 600 -j ACCEPT
--A INPUT -p udp --dport 600 -j ACCEPT
--A INPUT -p tcp --dport 601 -j ACCEPT
--A INPUT -p udp --dport 601 -j ACCEPT
--A INPUT -p tcp --dport 603 -j ACCEPT
--A INPUT -p udp --dport 603 -j ACCEPT
-
-</file>
-
 <file name="/etc/rc.d/rocksconfig.d/post-50-gfarm-agent" perms="744">
 #!/bin/sh
 
 # add to iptables 
 exists=`grep "Gfarm ports" /etc/sysconfig/iptables | wc -l`
-if [ $exists  == '1' ]; then
-   rm /tmp/iptables-add
-else
-   cat /tmp/iptables-add &gt;&gt; /etc/sysconfig/iptables
-   rm /tmp/iptables-add
+if [ $exists  == "" ]; then
+   if [ -f /tmp/iptables-add ]; then
+      cat /tmp/iptables-add &gt;&gt; /etc/sysconfig/iptables
+   fi
 fi
+rm -f /tmp/iptables-add
 
 agent="<var name="Info_GfarmAgent"/>"
 
