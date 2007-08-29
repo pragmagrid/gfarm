@@ -56,6 +56,9 @@
 
 	<changelog>
 	$Log$
+	Revision 1.6.4.6  2007/08/29 13:46:39  nadya
+	fix name typo
+	
 	Revision 1.6.4.5  2007/08/28 21:21:46  nadya
 	move gfarm.conf file creation and iptables additions to gfarm-base
 	rm gfarm-agent from compute nodes
@@ -103,9 +106,9 @@
 # check for compute nodes for a second interface.  When none exit.
 addr=`cat /etc/sysconfig/network-scripts/ifcfg-eth1 | grep IPADDR| sed -e s/IPADDR=//`
 if [ "$addr" == "" ]; then
-   #rm /etc/rc.d/rocksconfig.d/post-50-gfarm-agent
    rpm -el gfarm-fsnode gfarm-devel gfarm-gfptool fuse-devel
    rm -f /tmp/iptables-add
+   rm /etc/rc.d/rocksconfig.d/post-50-gfarm-data
    exit
 fi
 
