@@ -56,6 +56,10 @@
 
 	<changelog>
 	$Log$
+	Revision 1.5.4.5  2007/09/01 16:46:58  nadya
+	insert ports seciton into iptables instead of appending
+	simulate info for app_globals if adding a roll on a fly
+	
 	Revision 1.5.4.4  2007/08/28 21:21:46  nadya
 	move gfarm.conf file creation and iptables additions to gfarm-base
 	rm gfarm-agent from compute nodes
@@ -101,8 +105,42 @@
 	<package>globus-proxy-utils-gcc32</package>
 	<package>globus-gssapi-gsi-gcc32</package>
 
-
 <post>
+
+<file name="/tmp/iptables-add.py">
+#!/usr/bin/env python
+
+import string
+
+filein = open("/etc/sysconfig/iptables","r")
+text = string.join(filein.readlines(), "")
+filein.close()
+
+add = '# Gfarm ports\n' \
+    + '-A INPUT -m state --state NEW -p tcp --dport 80 -j ACCEPT\n' \
+    + '-A INPUT -m state --state NEW -p tcp --dport 2811 -j ACCEPT\n'\
+    + '-A INPUT -m state --state NEW -p udp --dport 2812 -j ACCEPT\n'\
+    + '-A INPUT -m state --state NEW -p tcp --dport 2135 -j ACCEPT\n'\
+    + '-A INPUT -m state --state NEW -p tcp --dport 2119 -j ACCEPT\n'\
+    + '-A INPUT -m state --state NEW -p tcp --dport 389 -j ACCEPT\n'\
+    + '-A INPUT -m state --state NEW -p tcp --dport 600 -j ACCEPT\n'\
+    + '-A INPUT -m state --state NEW -p udp --dport 600 -j ACCEPT\n'\
+    + '-A INPUT -m state --state NEW -p tcp --dport 601 -j ACCEPT\n'\
+    + '-A INPUT -m state --state NEW -p udp --dport 601 -j ACCEPT\n'\
+    + '-A INPUT -m state --state NEW -p tcp --dport 603 -j ACCEPT\n'\
+    + '-A INPUT -m state --state NEW -p udp --dport 603 -j ACCEPT\n\n'\
+
+i = string.find(text, "# Deny section")
+f = open("/tmp/iptables-add", 'w')
+f.write(text[:i])
+f.write(add)
+f.write(text[i:])
+f.close()
+
+</file>
+
+chmod +x /tmp/iptables-add.py
+
 
 <file name="/etc/gfarm.conf" perms="0644">
 spool /export/gfarm
@@ -124,7 +162,7 @@ agent_serverhost <var name="Info_GfarmAgent"/>
 agent_serverport 603
 </file>
 
-<file name="/tmp/iptables-add" perms="744">
+<file name="/tmp/iptables-old" perms="744">
 
 # Gfarm ports
 -A INPUT -m state --state NEW -p tcp --dport 80 -j ACCEPT
@@ -151,6 +189,15 @@ rpm -Uvh --force /usr/src/redhat/RPMS/$archname/fuse-kernel-2.6.3-0.$archname.rp
 
 /sbin/modprobe fuse
 chmod 666 /dev/fuse
+
+# check if adding roll to a live system. if yes then add needed db info
+# this part is done via screens during normal install
+dbinfo=`echo "select Value from app_globals where Component=\"GfarmMetaserver\" " | mysql -u apache cluster`
+if [ "$dbinfo" == "" ]; then
+   echo 'insert into app_globals(Service, Component, Value) values ("Info", "GfarmMetaserver","pine.hpcc.jp")' | mysql -u apache cluster
+   echo 'insert into app_globals(Service, Component, Value) values ("Info", "GfarmAgent","localhost")' | mysql -u apache cluster
+   echo 'insert into app_globals(Service, Component, Value) values ("Info", "GfarmFSNode","localhost")' | mysql -u apache cluster
+fi
 
 rm /etc/rc.d/rocksconfig.d/post-50-gfarm-base
 
