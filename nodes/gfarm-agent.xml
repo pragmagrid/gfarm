@@ -55,6 +55,11 @@
 
 	<changelog>
 	$Log$
+	Revision 1.1.2.5  2007/09/01 16:52:02  nadya
+	put quotes around strings in comparisons
+	use python script to create updated iptables
+	use mysql select in place of var name - needed if adding a roll on a fly
+	
 	Revision 1.1.2.4  2007/08/28 21:21:46  nadya
 	move gfarm.conf file creation and iptables additions to gfarm-base
 	rm gfarm-agent from compute nodes
@@ -80,17 +85,17 @@
 #!/bin/sh
 
 # add to iptables 
-exists=`grep "Gfarm ports" /etc/sysconfig/iptables | wc -l`
-if [ $exists  == "" ]; then
-   if [ -f /tmp/iptables-add ]; then
-      cat /tmp/iptables-add &gt;&gt; /etc/sysconfig/iptables
+exists=`grep "Gfarm ports" /etc/sysconfig/iptables`
+if [ "$exists" == "" ]; then
+   if [ -f /tmp/iptables-add.py ]; then
+      /tmp/iptables-add.py
+      mv /tmp/iptables-add /etc/sysconfig/iptables
    fi
 fi
-rm -f /tmp/iptables-add
 
-agent="<var name="Info_GfarmAgent"/>"
+agent=`echo "select Value from app_globals where Component=\"GfarmAgent\"" | mysql -u apache cluster | tail -1`
 
-if [ $agent == 'localhost' ]; then
+if [ "$agent" == "localhost" ]; then
    echo "update app_globals set Value='<var name="Info_ClusterFQDN"/>' where Component='GfarmAgent' and Value='localhost'" | mysql -u apache cluster
    config-agent > /dev/null
 fi
