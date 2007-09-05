@@ -56,6 +56,9 @@
 
 	<changelog>
 	$Log$
+	Revision 1.5.4.6  2007/09/05 09:15:26  nadya
+	set spool directory
+	
 	Revision 1.5.4.5  2007/09/01 16:46:58  nadya
 	insert ports seciton into iptables instead of appending
 	simulate info for app_globals if adding a roll on a fly
@@ -143,7 +146,7 @@ chmod +x /tmp/iptables-add.py
 
 
 <file name="/etc/gfarm.conf" perms="0644">
-spool /export/gfarm
+spool /state/partition1/gfarm
 spool_serverport 600
 metadb_serverhost <var name="Info_GfarmMetaserver"/>
 metadb_serverport 601
