@@ -55,6 +55,9 @@
 
 	<changelog>
 	$Log$
+	Revision 1.1.2.6  2007/09/05 09:16:57  nadya
+	use Kickstart_PublicHostname
+	
 	Revision 1.1.2.5  2007/09/01 16:52:02  nadya
 	put quotes around strings in comparisons
 	use python script to create updated iptables
@@ -96,7 +99,7 @@ fi
 agent=`echo "select Value from app_globals where Component=\"GfarmAgent\"" | mysql -u apache cluster | tail -1`
 
 if [ "$agent" == "localhost" ]; then
-   echo "update app_globals set Value='<var name="Info_ClusterFQDN"/>' where Component='GfarmAgent' and Value='localhost'" | mysql -u apache cluster
+   echo "update app_globals set Value='<var name="Kickstart_PublicHostname"/>' where Component='GfarmAgent' and Value='localhost'" | mysql -u apache cluster
    config-agent > /dev/null
 fi
 

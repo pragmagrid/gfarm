@@ -56,6 +56,9 @@
 
 	<changelog>
 	$Log$
+	Revision 1.9.4.4  2007/09/05 09:16:57  nadya
+	use Kickstart_PublicHostname
+	
 	Revision 1.9.4.3  2007/08/28 21:20:53  nadya
 	move postgres packages to gfarm-base
 	rm gfarm-server rpm if not server.
@@ -116,7 +119,7 @@
 metaserver="<var name="Info_GfarmMetaserver"/>"
 
 if [ $metaserver == 'localhost' ]; then
-   echo "update app_globals set Value='<var name="Info_ClusterFQDN"/>' where Component='GfarmMetaserver' and Value='localhost'" | mysql -u apache cluster
+   echo "update app_globals set Value='<var name="Kickstart_PublicHostname"/>' where Component='GfarmMetaserver' and Value='localhost'" | mysql -u apache cluster
 
    INTERACTIVE=false /sbin/runuser postgres -c '/bin/rm -f $HOME/.ssh/id_rsa.pub'
    INTERACTIVE=false /sbin/runuser postgres -c 'ssh-keygen -t rsa -N "" -f
