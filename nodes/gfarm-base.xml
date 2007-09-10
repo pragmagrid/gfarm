@@ -56,6 +56,9 @@
 
 	<changelog>
 	$Log$
+	Revision 1.5.4.8  2007/09/10 12:24:23  nadya
+	force mv
+	
 	Revision 1.5.4.7  2007/09/10 12:20:28  nadya
 	put new db values in gfarm.conf
 	
@@ -206,7 +209,7 @@ if [ "$dbinfo" == "" ]; then
    sed -e "s/metadb_serverhost/metadb_serverhost pine.hpcc.jp/" \
        -e "s/postgresql_serverhost/postgresql_serverhost pine.hpcc.jp/" \
 	   /etc/gfarm.conf &gt; /tmp/gfarm.conf
-   mv /tmp/gfarm.conf /etc/gfarm.conf
+   /bin/mv /tmp/gfarm.conf /etc/gfarm.conf
    chmod 644 /etc/gfarm.conf
 fi
 
