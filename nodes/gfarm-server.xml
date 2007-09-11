@@ -56,6 +56,9 @@
 
     <changelog>
     $Log$
+    Revision 1.9.4.7  2007/09/11 12:53:41  nadya
+    fix type and syntax. Simplify query
+
     Revision 1.9.4.6  2007/09/11 11:33:35  nadya
     check for existing conf file, config-gfarm makes its own.
 
@@ -124,14 +127,14 @@
 
 metaserver="<var name="Info_GfarmMetaserver"/>"
 
-if [ $metaserver == 'localhost' ]; then
-   echo "update app_globals set Value='<var name="Kickstart_PublicHostname"/>' where Component='GfarmMetaserver' and Value='localhost'" | mysql -u apache cluster
+if [ "$metaserver" == "localhost" ]; then
+   echo "update app_globals set Value='<var name="Kickstart_PublicHostname"/>' where Component='GfarmMetaserver'" | mysql -u apache cluster
 
    INTERACTIVE=false /sbin/runuser postgres -c '/bin/rm -f $HOME/.ssh/id_rsa.pub'
    INTERACTIVE=false /sbin/runuser postgres -c 'ssh-keygen -t rsa -N "" -f $HOME/.ssh/id_rsa.pub'
 
    if [ -f /etc/gfarm.conf ]; then
-      mv /etc/gfarm.cofn /etc/gfarm.conf.save
+      mv /etc/gfarm.conf /etc/gfarm.conf.save
    fi
 
    config-gfarm  -b postgresql > /dev/null
