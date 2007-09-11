@@ -56,6 +56,9 @@
 
     <changelog>
     $Log$
+    Revision 1.9.4.6  2007/09/11 11:33:35  nadya
+    check for existing conf file, config-gfarm makes its own.
+
     Revision 1.9.4.5  2007/09/10 14:26:41  nadya
     fix split line
 
@@ -126,6 +129,10 @@ if [ $metaserver == 'localhost' ]; then
 
    INTERACTIVE=false /sbin/runuser postgres -c '/bin/rm -f $HOME/.ssh/id_rsa.pub'
    INTERACTIVE=false /sbin/runuser postgres -c 'ssh-keygen -t rsa -N "" -f $HOME/.ssh/id_rsa.pub'
+
+   if [ -f /etc/gfarm.conf ]; then
+      mv /etc/gfarm.cofn /etc/gfarm.conf.save
+   fi
 
    config-gfarm  -b postgresql > /dev/null
 
