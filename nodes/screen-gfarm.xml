@@ -1,0 +1,68 @@
+<?xml version="1.0" standalone="no"?>
+
+<kickstart>
+
+	<description>
+	</description>
+
+	<copyright>
+	Copyright (c) 2000 - 2007 The Regents of the University of California.
+	All rights reserved. Rocks(tm) v4.3 www.rocksclusters.org
+	</copyright>
+
+	<changelog>
+	$Log$
+	Revision 1.1.2.1  2007/09/17 09:31:37  nadya
+	initial revision
+	
+	
+
+	</changelog>
+
+<screen>
+
+	<title>Gfarm Configuration</title>
+
+	<code>
+		<include file="javascript/gfarm.js"/>
+	</code>
+
+	<variable>
+		<label>Gfarm Metaserver Host:</label>
+		<name>Gfarm_MetaServer</name>
+		<type>string</type>
+		<size>20</size>
+		<default>pine.hpcc.jp</default>
+		<value><var name="Gfarm_MetaServer"/></value>
+		<help>Gfarm Metaserver for your cluster. Type "localhost" to specify this host or FQDN for another host.</help>
+		<validate>check_GFmetaserver</validate>
+	</variable>
+
+	<variable>
+		<label>Gfarm Agent Host:</label>
+		<name>Gfarm_Agent</name>
+		<type>string</type>
+		<size>20</size>
+		<default><var name="Kickstart_PublicHostname"/></default>
+		<value><var name="Gfarm_Agent"/></value>
+		<help>Select a Gfarm agent host. Default is frontend.</help>
+		<validate>check_GFagent</validate>
+	</variable>
+
+	<variable>
+		<label>Gfarm FS Node:</label>
+		<name>Gfarm_FSNode</name>
+		<type>menu</type>
+		<size>1</size>
+		<option><var name="Kickstart_PublicHostname"/></option>
+		<option>No</option>
+		<default><var name="Kickstart_PublicHostname"/></default>
+		<value><var name="Gfarm_FSNode"/></value>
+		<help>Select if this host is a Gfarm FS node, type "none" otherwise. Default is frontend.</help>
+		<validate>check_GFfsnode</validate>
+	</variable>
+
+</screen>
+
+</kickstart> 
+
