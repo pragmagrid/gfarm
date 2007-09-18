@@ -56,6 +56,9 @@
 
 	<changelog>
 	$Log$
+	Revision 1.5.4.3.2.1  2007/09/18 10:04:28  nadya
+	configure agent before fs node
+	
 	Revision 1.5.4.3  2007/08/28 21:15:04  nadya
 	rm gfarm-agent from compute nodes
 	add ordering to have gfarm-base first
@@ -82,6 +85,10 @@
         <tail>gfarm-server</tail>
         <tail>gfarm-agent</tail>
         <tail>gfarm-data</tail> 
+    </order>
+
+    <order head="gfarm-agent">
+        <tail>gfarm-data</tail>
     </order>
 
     <edge from="server">
