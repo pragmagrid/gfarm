@@ -56,6 +56,9 @@
 
 	<changelog>
 	$Log$
+	Revision 1.5.4.10  2007/09/18 10:11:37  nadya
+	fix typo
+	
 	Revision 1.5.4.9  2007/09/18 09:52:42  nadya
 	install and configure agent on frontend by default
 	
@@ -207,7 +210,7 @@ chmod 666 /dev/fuse
 dbinfo=`echo "select Value from app_globals where Component=\"GfarmMetaserver\" " | mysql -u apache cluster`
 if [ "$dbinfo" == "" ]; then
    echo 'insert into app_globals(Service, Component, Value) values ("Info", "GfarmMetaserver","pine.hpcc.jp")' | mysql -u apache cluster
-   echo 'insert into app_globals(Service, Component, Value) values ("Info", "GfarmAgent","<var name="Kickstart_PublicHostname"/>')" | mysql -u apache cluster
+   echo 'insert into app_globals(Service, Component, Value) values ("Info", "GfarmAgent","<var name="Kickstart_PublicHostname"/>")' | mysql -u apache cluster
    echo 'insert into app_globals(Service, Component, Value) values ("Info", "GfarmFSNode","localhost")' | mysql -u apache cluster
    sed -e "s/metadb_serverhost/metadb_serverhost pine.hpcc.jp/" \
        -e "s/postgresql_serverhost/postgresql_serverhost pine.hpcc.jp/" \
