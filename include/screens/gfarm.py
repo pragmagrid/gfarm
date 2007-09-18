@@ -43,15 +43,6 @@ class GFarmInfoWindow:
 		infoGrid.setField(self.metaserver, x+1, y, anchorLeft = 1)
 		y += 1
 
-		# agent information 
-		default = "localhost"
-		self.agent = Entry(24, default)
-		self.agent.setCallback(self.valCb, (self.agent))
-
-		infoGrid.setField(self.label("Gfarm Agent:"), x, y, anchorLeft = 1)
-		infoGrid.setField(self.agent, x+1, y, anchorLeft = 1)
-		y += 1
-
 		# fs node information 
 		default = "localhost"
 		self.fsnode = Entry(24, default)
@@ -83,12 +74,9 @@ class GFarmInfoWindow:
 				continue
 
 			Info.GfarmMetaserver = self.metaserver.value()
-			Info.GfarmAgent = self.agent.value()
 			Info.GfarmFSNode = self.fsnode.value()
 
-			if Info.GfarmAgent == '':
-				fieldlabel = _("Gfarm Agent")
-			elif Info.GfarmFSNode == '':
+			if Info.GfarmFSNode == '':
 				fieldlabel = _("Gfarm FS Node")
 			else:
 				done = 1
@@ -96,7 +84,7 @@ class GFarmInfoWindow:
 			if done == 0:
 				ButtonChoiceWindow(screen, "",
 					(_("You must supply a FQDN for the\n"
-						"'%s' or use localhost") % (fieldlabel)),
+						"'%s' or localhost or none") % (fieldlabel)),
 				buttons = [ TEXT_OK_BUTTON ], width = 50)
 
 		screen.popWindow()
