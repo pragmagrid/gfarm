@@ -12,6 +12,9 @@
 
 	<changelog>
 	$Log$
+	Revision 1.1.2.2  2007/09/18 10:37:27  nadya
+	fix names. remove agent configuration - do it on frontend by default
+	
 	Revision 1.1.2.1  2007/09/17 09:31:37  nadya
 	initial revision
 	
@@ -29,36 +32,25 @@
 
 	<variable>
 		<label>Gfarm Metaserver Host:</label>
-		<name>Gfarm_MetaServer</name>
+		<name>Info_GfarmMetaServer</name>
 		<type>string</type>
 		<size>20</size>
 		<default>pine.hpcc.jp</default>
-		<value><var name="Gfarm_MetaServer"/></value>
-		<help>Gfarm Metaserver for your cluster. Type "localhost" to specify this host or FQDN for another host.</help>
+		<value><var name="Info_GfarmMetaServer"/></value>
+		<help>Gfarm Metaserver for your cluster. Specify FQDN of this host or FQDN for another host.</help>
 		<validate>check_GFmetaserver</validate>
 	</variable>
 
 	<variable>
-		<label>Gfarm Agent Host:</label>
-		<name>Gfarm_Agent</name>
-		<type>string</type>
-		<size>20</size>
-		<default><var name="Kickstart_PublicHostname"/></default>
-		<value><var name="Gfarm_Agent"/></value>
-		<help>Select a Gfarm agent host. Default is frontend.</help>
-		<validate>check_GFagent</validate>
-	</variable>
-
-	<variable>
 		<label>Gfarm FS Node:</label>
-		<name>Gfarm_FSNode</name>
+		<name>Info_GfarmFSNode</name>
 		<type>menu</type>
 		<size>1</size>
 		<option><var name="Kickstart_PublicHostname"/></option>
-		<option>No</option>
+		<option>none</option>
 		<default><var name="Kickstart_PublicHostname"/></default>
-		<value><var name="Gfarm_FSNode"/></value>
-		<help>Select if this host is a Gfarm FS node, type "none" otherwise. Default is frontend.</help>
+		<value><var name="Info_GfarmFSNode"/></value>
+		<help>Select if this host is a Gfarm FS node. Default is yes (frontend).</help>
 		<validate>check_GFfsnode</validate>
 	</variable>
 
