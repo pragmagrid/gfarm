@@ -54,6 +54,9 @@
 # @Copyright@
 #
 # $Log$
+# Revision 1.8.2.2  2007/09/19 19:06:47  nadya
+# dd rpm-mkdirs target to create BUILD
+#
 # Revision 1.8.2.1  2007/09/19 10:14:29  nadya
 # bring from 4.2.1
 #
@@ -98,7 +101,7 @@ SRC_RPMS = $(FUSE)-$(FUSE_VERSION).src.rpm \
            $(GFARM)-$(GFARM_VERSION).src.rpm \
            $(GFARMFS_FUSE)-$(GFARMFS_FUSE_VERSION).src.rpm
 
-rpm::
+rpm:: rpm-mkdirs
 	rpmbuild --rebuild --nodeps *.src.rpm
 	if [ ! -d ../../RPMS/$(ARCH) ]; then mkdir -p ../../RPMS/$(ARCH); fi
 	cp /usr/src/redhat/RPMS/$(ARCH)/$(GFARM)*$(GFARM_VERSION)*$(ARCH).rpm ../../RPMS/$(ARCH)
