@@ -14,6 +14,9 @@
 
 	<changelog>
 	$Log$
+	Revision 1.12.2.2  2007/09/19 11:42:11  nadya
+	rm old references to screens
+	
 	Revision 1.12.2.1  2007/09/19 10:14:28  nadya
 	bring from 4.2.1
 	
@@ -60,10 +63,6 @@
 
 	<package>postgresql-server</package>
 	<package>postgresql-contrib</package>
-
-	<installclass>
-	<include file="screens/gfarm.py"/>
-	</installclass>
 
 <post>
 
