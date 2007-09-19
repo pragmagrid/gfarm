@@ -55,6 +55,9 @@
 # @Copyright@
 #
 # $Log$
+# Revision 1.6.2.1  2007/09/19 10:14:29  nadya
+# bring from 4.2.1
+#
 # Revision 1.6  2007/06/23 04:03:37  mjk
 # mars hill copyright
 #
@@ -83,6 +86,15 @@ ROCKSROOT = ../../../../..
 -include $(ROCKSROOT)/etc/Rules.mk
 include Rules.mk
 
+-include $(ROCKSROOT)/etc/python.mk
+include python.mk
+
+build::
+
 install::
-	install -ma+r  $(REPORTS) $(ROOT)/$(PKGROOT)/lib/python/rocks/reports/
+	mkdir -p $(ROOT)/$(PY.ROCKS)/rocks/reports/
+	install -ma+r  $(REPORTS) $(ROOT)/$(PY.ROCKS)/rocks/reports/
+
+clean::
+	rm -f $(NAME).spec.in
 

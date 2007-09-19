@@ -4,7 +4,7 @@
 
 
 	<description>
-	Grid Data Farm FS node support
+	Grid Data Farm 
 	</description>
 
 	<copyright>
@@ -14,14 +14,8 @@
 
 	<changelog>
 	$Log$
-	Revision 1.12  2007/08/12 16:02:49  nadya
-	add gfarm-gfptool package
-	
-	Revision 1.11  2007/08/07 11:50:24  nadya
-	add devel packages
-	
-	Revision 1.10  2007/07/31 17:09:04  nadya
-	accommodate new gfarm srpms
+	Revision 1.9.2.1  2007/09/19 10:14:28  nadya
+	bring from 4.2.1
 	
 	Revision 1.9  2007/06/23 04:03:36  mjk
 	mars hill copyright
@@ -50,29 +44,45 @@
 	</changelog>
 
 	<package>gfarm-fsnode</package>
+	<package>gfarm-fsnode</package>
 	<package>gfarm-devel</package>
 	<package>gfarm-gfptool</package>
 	<package>fuse-devel</package>
 
 <post>
-### Put the Gfarm FS node in the database
-GFFSNode=<var name="Kickstart_PublicHostname"/>
-/opt/rocks/bin/rocks add var service=Gfarm component=FSNode value=$GFFSNode
-
-<file name="/etc/gfarm.conf">
-<eval>
-cat /etc/gfarm.conf
-</eval>
-</file>
 
 <file name="/etc/rc.d/rocksconfig.d/post-50-gfarm-data" perms="744">
 #!/bin/sh
 
-config-gfsd /state/partition1/gfarm > /dev/null
+# check for compute nodes for a second interface.  When none exit.
+addr=`cat /etc/sysconfig/network-scripts/ifcfg-eth1 | grep IPADDR| sed -e s/IPADDR=//`
+if [ "$addr" == "" ]; then
+   rpm -el gfarm-fsnode gfarm-devel gfarm-gfptool fuse-devel
+   rm /etc/rc.d/rocksconfig.d/post-50-gfarm-data
+   exit
+fi
+
+# add to iptables 
+exists=`grep "Gfarm ports" /etc/sysconfig/iptables`
+if [ "$exists"  == "" ]; then 
+   if [ -f /tmp/iptables-add.py ]; then
+      /tmp/iptables-add.py
+      mv /tmp/iptables-add  /etc/sysconfig/iptables
+   fi
+fi
+
+fsnode=`echo "select Value from app_globals where Component=\"GfarmFSNode\"" | mysql -u apache cluster | tail -1`
+
+if [ "$fsnode" == "localhost" ]; then
+   echo "update app_globals set Value='<var name="Kickstart_PublicHostname"/>' where Component='GfarmFSNode' and Value='localhost'" | mysql -u apache cluster
+   config-gfsd /state/partition1/gfarm > /dev/null
+fi
+
 
 rm /etc/rc.d/rocksconfig.d/post-50-gfarm-data
 </file>
 
 </post>
+
 
 </kickstart>

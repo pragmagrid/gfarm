@@ -54,11 +54,8 @@
 # @Copyright@
 #
 # $Log$
-# Revision 1.10  2007/08/08 08:49:35  nadya
-# remove cp line. it brings old rpms
-#
-# Revision 1.9  2007/07/31 15:05:26  nadya
-# add srpms names
+# Revision 1.8.2.1  2007/09/19 10:14:29  nadya
+# bring from 4.2.1
 #
 # Revision 1.8  2007/06/23 04:03:36  mjk
 # mars hill copyright
@@ -99,9 +96,12 @@ include Rules.mk
 
 SRC_RPMS = $(FUSE)-$(FUSE_VERSION).src.rpm \
            $(GFARM)-$(GFARM_VERSION).src.rpm \
-		   $(GFARMFS_FUSE)-$(GFARMFS_FUSE_VERSION).src.rpm
-rpm::
-	rpmbuild --rebuild --nodeps $(SRC_RPMS)
-	if [ ! -d ../../RPMS/$(ARCH) ]; then mkdir -p ../../RPMS/$(ARCH); fi
+           $(GFARMFS_FUSE)-$(GFARMFS_FUSE_VERSION).src.rpm
 
+rpm::
+	rpmbuild --rebuild --nodeps *.src.rpm
+	if [ ! -d ../../RPMS/$(ARCH) ]; then mkdir -p ../../RPMS/$(ARCH); fi
+	cp /usr/src/redhat/RPMS/$(ARCH)/$(GFARM)*$(GFARM_VERSION)*$(ARCH).rpm ../../RPMS/$(ARCH)
+	cp /usr/src/redhat/RPMS/$(ARCH)/$(FUSE)*$(FUSE_VERSION)*$(ARCH).rpm ../../RPMS/$(ARCH)
+	cp /usr/src/redhat/RPMS/$(ARCH)/$(GFARMFS_FUSE)*$(GFARMFS_FUSE_VERSION)*$(ARCH).rpm ../../RPMS/$(ARCH)
 

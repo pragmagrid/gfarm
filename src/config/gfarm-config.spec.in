@@ -1,0 +1,66 @@
+# $Id$
+#
+# @Copyright@
+# @Copyright@
+#
+# $Log$
+# Revision 1.1.4.1  2007/09/19 10:14:29  nadya
+# bring from 4.2.1
+#
+#
+
+Summary: Configure the General Messaging (GM) drivers for Myrinet
+Name: @NAME@
+Version: @VERSION@
+Release: @RELEASE@
+Copyright: @COPYRIGHT@
+Vendor: @VENDOR@
+Group: System Environment/Base
+Source: %{name}-%{version}.tar.gz
+Buildroot: @VAR@/tmp/%{name}-buildroot
+Prefix: /opt
+
+
+%description
+
+
+##
+## PREP
+##
+%prep 
+
+
+##
+## SETUP
+##
+%setup
+
+
+##
+## BUILD
+##
+%build
+make
+
+
+
+##
+## INSTALL
+##
+%install
+make ROOT=$RPM_BUILD_ROOT install
+
+
+##
+## FILES
+##
+%files 
+/
+
+
+##
+## CLEAN
+##
+%clean
+/bin/rm -rf $RPM_BUILD_ROOT
+

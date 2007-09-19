@@ -14,8 +14,8 @@
 
 	<changelog>
 	$Log$
-	Revision 1.9  2007/08/08 08:52:16  nadya
-	add postgresql dependency. change edges
+	Revision 1.8.2.1  2007/09/19 10:14:27  nadya
+	bring from 4.2.1
 	
 	Revision 1.8  2007/06/23 04:03:36  mjk
 	mars hill copyright
@@ -37,21 +37,31 @@
 	
 	</changelog>
 
-	<order head="postgresql-server" tail="gfarm-server"/>
+    <order head="gfarm-base">
+        <tail>gfarm-server</tail>
+        <tail>gfarm-agent</tail>
+        <tail>gfarm-data</tail>
+    </order>
 
-	<edge from="server">
-		<to>postgresql-server</to>
-		<to>gfarm-server</to>
-	</edge>
+    <order head="gfarm-agent">
+        <tail>gfarm-data</tail>
+    </order>
 
-	<edge from="compute">
-		<to>gfarm-base</to>
-	</edge>
+    <edge from="server">
+        <to>gfarm-server</to>
+        <to>gfarm-agent</to>
+        <to>gfarm-data</to>
+    </edge>
 
-	<edge to="gfarm-base">
-		<from>gfarm-agent</from>
-		<from>gfarm-data</from>
-		<from>gfarm-server</from>
-	</edge>
+    <edge from="compute">
+        <to>gfarm-base</to>
+        <to>gfarm-data</to>
+    </edge>
+
+    <edge to="gfarm-base">
+        <from>gfarm-agent</from>
+        <from>gfarm-data</from>
+        <from>gfarm-server</from>
+    </edge>
 
 </graph>

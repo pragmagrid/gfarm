@@ -4,7 +4,7 @@
 
 
 	<description>
-	Grid Data Farm aupport
+	Grid Data Farm 
 	</description>
 
 	<copyright>
@@ -14,8 +14,8 @@
 
 	<changelog>
 	$Log$
-	Revision 1.10  2007/07/31 17:09:04  nadya
-	accommodate new gfarm srpms
+	Revision 1.9.2.1  2007/09/19 10:14:28  nadya
+	bring from 4.2.1
 	
 	Revision 1.9  2007/06/23 04:03:36  mjk
 	mars hill copyright
@@ -43,6 +43,7 @@
 	
 	</changelog>
 
+	<package>gfarm-config</package>
 	<package>gfarm-libs</package>
 	<package>gfarm-client</package>
 	<package>gfarmfs-fuse</package>
@@ -51,11 +52,113 @@
 	<package>fuse-kernel</package>
 	<package>fuse-libs</package>
 
+	<package>postgresql</package>
+	<package>postgresql-libs</package>
+	<package>postgresql-devel</package>
+
+	<package>globus-gpt</package>
+	<package>globus-proxy-utils-gcc32</package>
+	<package>globus-gssapi-gsi-gcc32</package>
+
 <post>
+
+<file name="/tmp/iptables-add.py">
+#!/usr/bin/env python
+
+import string
+
+filein = open("/etc/sysconfig/iptables","r")
+text = string.join(filein.readlines(), "")
+filein.close()
+
+add = '# Gfarm ports\n' \
+    + '-A INPUT -m state --state NEW -p tcp --dport 80 -j ACCEPT\n' \
+    + '-A INPUT -m state --state NEW -p tcp --dport 2811 -j ACCEPT\n'\
+    + '-A INPUT -m state --state NEW -p udp --dport 2812 -j ACCEPT\n'\
+    + '-A INPUT -m state --state NEW -p tcp --dport 2135 -j ACCEPT\n'\
+    + '-A INPUT -m state --state NEW -p tcp --dport 2119 -j ACCEPT\n'\
+    + '-A INPUT -m state --state NEW -p tcp --dport 389 -j ACCEPT\n'\
+    + '-A INPUT -m state --state NEW -p tcp --dport 600 -j ACCEPT\n'\
+    + '-A INPUT -m state --state NEW -p udp --dport 600 -j ACCEPT\n'\
+    + '-A INPUT -m state --state NEW -p tcp --dport 601 -j ACCEPT\n'\
+    + '-A INPUT -m state --state NEW -p udp --dport 601 -j ACCEPT\n'\
+    + '-A INPUT -m state --state NEW -p tcp --dport 603 -j ACCEPT\n'\
+    + '-A INPUT -m state --state NEW -p udp --dport 603 -j ACCEPT\n\n'\
+
+i = string.find(text, "# Deny section")
+f = open("/tmp/iptables-add", 'w')
+f.write(text[:i])
+f.write(add)
+f.write(text[i:])
+f.close()
+
+</file>
+
+chmod +x /tmp/iptables-add.py
+
+
+<file name="/etc/gfarm.conf" perms="0644">
+spool /state/partition1/gfarm
+spool_serverport 600
+metadb_serverhost <var name="Info_GfarmMetaserver"/>
+metadb_serverport 601
+postgresql_serverhost <var name="Info_GfarmMetaserver"/>
+postgresql_serverport 10602
+postgresql_dbname gfarm
+postgresql_user gfarm
+postgresql_password "Rr6cSGWquzbXeQRsjCIsMFu06reMxkyPns4n4vmDk9c"
+auth disable sharedsecret *
+auth enable gsi_auth *
+auth enable gsi *
+sockopt keepalive
+sockopt sndbuf=33554432
+sockopt rcvbuf=33554432
+agent_serverhost <var name="Info_GfarmAgent"/>
+agent_serverport 603
+</file>
+
+<file name="/tmp/iptables-old" perms="744">
+
+# Gfarm ports
+-A INPUT -m state --state NEW -p tcp --dport 80 -j ACCEPT
+-A INPUT -m state --state NEW -p tcp --dport 2811 -j ACCEPT
+-A INPUT -m state --state NEW -p udp --dport 2812 -j ACCEPT
+-A INPUT -m state --state NEW -p tcp --dport 2135 -j ACCEPT
+-A INPUT -m state --state NEW -p tcp --dport 2119 -j ACCEPT
+-A INPUT -m state --state NEW -p tcp --dport 389 -j ACCEPT
+-A INPUT -m state --state NEW -p tcp --dport 600 -j ACCEPT
+-A INPUT -m state --state NEW -p udp --dport 600 -j ACCEPT
+-A INPUT -m state --state NEW -p tcp --dport 601 -j ACCEPT
+-A INPUT -m state --state NEW -p udp --dport 601 -j ACCEPT
+-A INPUT -m state --state NEW -p tcp --dport 603 -j ACCEPT
+-A INPUT -m state --state NEW -p udp --dport 603 -j ACCEPT
+</file>
+
 <file name="/etc/rc.d/rocksconfig.d/post-50-gfarm-base" perms="744">
 #!/bin/sh
 
+archname=`uname -i`
+rpm -ivh /usr/src/redhat/SRPMS/fuse-2.6.3-0.src.rpm
+rpmbuild -bb /usr/src/redhat/SPECS/fuse.spec
+rpm -Uvh --force /usr/src/redhat/RPMS/$archname/fuse-kernel-2.6.3-0.$archname.rpm
+
 /sbin/modprobe fuse
+chmod 666 /dev/fuse
+
+# check if adding roll to a live system. if yes then add needed db info
+# this part is done via screens during normal install
+dbinfo=`echo "select Value from app_globals where Component=\"GfarmMetaserver\" " | mysql -u apache cluster`
+if [ "$dbinfo" == "" ]; then
+   echo 'insert into app_globals(Service, Component, Value) values ("Info", "GfarmMetaserver","pine.hpcc.jp")' | mysql -u apache cluster
+   echo 'insert into app_globals(Service, Component, Value) values ("Info", "GfarmAgent","<var name="Kickstart_PublicHostname"/>")' | mysql -u apache cluster
+   echo 'insert into app_globals(Service, Component, Value) values ("Info", "GfarmFSNode","localhost")' | mysql -u apache cluster
+   sed -e "s/metadb_serverhost/metadb_serverhost pine.hpcc.jp/" \
+       -e "s/postgresql_serverhost/postgresql_serverhost pine.hpcc.jp/" \
+	   /etc/gfarm.conf &gt; /tmp/gfarm.conf
+   /bin/mv /tmp/gfarm.conf /etc/gfarm.conf
+   chmod 644 /etc/gfarm.conf
+fi
+
 rm /etc/rc.d/rocksconfig.d/post-50-gfarm-base
 
 </file>

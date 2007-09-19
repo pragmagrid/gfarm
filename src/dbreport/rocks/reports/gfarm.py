@@ -56,8 +56,8 @@
 # @Copyright@
 #
 # $Log$
-# Revision 1.9  2007/08/07 21:48:38  nadya
-# add postgresql and agent info. Use new gfarm service/component
+# Revision 1.8.2.1  2007/09/19 10:14:29  nadya
+# bring from 4.2.1
 #
 # Revision 1.8  2007/06/23 04:03:37  mjk
 # mars hill copyright
@@ -94,11 +94,11 @@ class Report(rocks.reports.base.ReportBase):
 
 	def run(self):
 		self.execute('select value from app_globals where '
-			'service="Gfarm" and component="Agent"')
+			'service="Info" and component="GfarmAgent"')
 		agentServer = self.fetchone()
 
 		self.execute('select value from app_globals where '
-			'service="Gfarm" and component="MetaServer"')
+			'service="Info" and component="GfarmMetaServer"')
 		metaServer = self.fetchone()
 		pgsqlServer = metaServer
 
