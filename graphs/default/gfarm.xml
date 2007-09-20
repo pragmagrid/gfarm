@@ -14,6 +14,9 @@
 
 	<changelog>
 	$Log$
+	Revision 1.8.2.2  2007/09/20 08:50:20  nadya
+	include screen
+	
 	Revision 1.8.2.1  2007/09/19 10:14:27  nadya
 	bring from 4.2.1
 	
@@ -37,6 +40,10 @@
 	
 	</changelog>
 
+	<order head="screen-timezone">
+		<tail>screen-gfarm</tail>
+	</order>
+
     <order head="gfarm-base">
         <tail>gfarm-server</tail>
         <tail>gfarm-agent</tail>
@@ -48,6 +55,7 @@
     </order>
 
     <edge from="server">
+        <to>screen-gfarm</to>
         <to>gfarm-server</to>
         <to>gfarm-agent</to>
         <to>gfarm-data</to>
