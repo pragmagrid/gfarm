@@ -12,6 +12,9 @@
 
 	<changelog>
 	$Log$
+	Revision 1.1.4.2  2007/09/21 08:40:10  nadya
+	change help text
+	
 	Revision 1.1.4.1  2007/09/19 10:14:28  nadya
 	bring from 4.2.1
 	
@@ -46,7 +49,7 @@
 		<option>none</option>
 		<default><var name="Kickstart_PublicHostname"/></default>
 		<value><var name="Info_GfarmFSNode"/></value>
-		<help>Select if this host is a Gfarm FS node. Default is yes (frontend).</help>
+		<help>Select if this host is a Gfarm FS node. Default is frontend.</help>
 		<validate>check_GFfsnode</validate>
 	</variable>
 
