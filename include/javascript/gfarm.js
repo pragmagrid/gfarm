@@ -5,6 +5,9 @@
  * @Copyright@
  * 
  * $Log$
+ * Revision 1.2.2.2  2007/09/21 10:29:13  nadya
+ * need to access field by value
+ *
  * Revision 1.2.2.1  2007/09/21 08:33:05  nadya
  * initial revision
  *
@@ -14,7 +17,7 @@ function check_LocalHost(hostname)
 {
 	var retval = false;
 
-	if (hostname.toLowerCase() == "localhost")
+	if (hostname.value.toLowerCase() == "localhost")
 		retval = true; 
 
 	return(retval);
@@ -67,7 +70,7 @@ function check_GFfsnode(e)
 	 * the user-input variable
 	 */
 	var GfarmFSNode = doc.getElementsByName('Info_GfarmFSNode')[0];
-	if (GfarmFSNode.toLowerCase() == "none")
+	if (GfarmFSNode.value.toLowerCase() == "none")
 		return(true); 
 
 	return(check_name(GfarmFSNode));
