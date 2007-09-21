@@ -12,6 +12,9 @@
 
 	<changelog>
 	$Log$
+	Revision 1.1.4.3  2007/09/21 10:33:22  nadya
+	change menu type to string
+	
 	Revision 1.1.4.2  2007/09/21 08:40:10  nadya
 	change help text
 	
@@ -30,7 +33,7 @@
 	</code>
 
 	<variable>
-		<label>Gfarm Metaserver Host:</label>
+		<label>Gfarm Metaserver Host</label>
 		<name>Info_GfarmMetaServer</name>
 		<type>string</type>
 		<size>20</size>
@@ -41,15 +44,13 @@
 	</variable>
 
 	<variable>
-		<label>Gfarm FS Node:</label>
+		<label>Gfarm FS Node</label>
 		<name>Info_GfarmFSNode</name>
-		<type>menu</type>
-		<size>1</size>
-		<option><var name="Kickstart_PublicHostname"/></option>
-		<option>none</option>
-		<default><var name="Kickstart_PublicHostname"/></default>
+		<type>string</type>
+		<size>20</size>
+		<default>none</default>
 		<value><var name="Info_GfarmFSNode"/></value>
-		<help>Select if this host is a Gfarm FS node. Default is frontend.</help>
+		<help>Specify FQDN of your cluster if this host is a Gfarm FS node. Default is none.</help>
 		<validate>check_GFfsnode</validate>
 	</variable>
 
