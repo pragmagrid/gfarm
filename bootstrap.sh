@@ -1,12 +1,16 @@
+#!/bin/sh
+#
+# This file should remain OS independent
+#
 # $Id$
 #
 # @Copyright@
 # 
-# 				Rocks(tm)
+# 				Rocks(r)
 # 		         www.rocksclusters.org
-# 		        version 4.3 (Mars Hill)
+# 		       version 5.2 (Chimichanga)
 # 
-# Copyright (c) 2000 - 2007 The Regents of the University of California.
+# Copyright (c) 2000 - 2009 The Regents of the University of California.
 # All rights reserved.	
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -24,7 +28,7 @@
 # 3. All advertising and press materials, printed or electronic, mentioning
 # features or use of this software must display the following acknowledgement: 
 # 
-# 	"This product includes software developed by the Rocks(tm)
+# 	"This product includes software developed by the Rocks(r)
 # 	Cluster Group at the San Diego Supercomputer Center at the
 # 	University of California, San Diego and its contributors."
 # 
@@ -54,64 +58,12 @@
 # @Copyright@
 #
 # $Log$
-# Revision 1.13  2010/03/03 18:41:51  mjk
+# Revision 1.2  2010/03/03 18:41:51  mjk
 # - added bootstrap.sh
 # - fix SRPMS building
 #
-# Revision 1.12  2010/03/03 18:09:27  mjk
-# - attributes control fsnodes
-# - nuke gfarm-base (won't work until we do attrs on frontend)
-# - time to test
-#
-# Revision 1.11  2010/03/03 17:58:21  mjk
-# almost there ...
-#
-# Revision 1.10  2007/08/08 08:49:35  nadya
-# remove cp line. it brings old rpms
-#
-# Revision 1.9  2007/07/31 15:05:26  nadya
-# add srpms names
-#
-# Revision 1.8  2007/06/23 04:03:36  mjk
-# mars hill copyright
-#
-# Revision 1.7  2006/09/11 22:48:38  mjk
-# monkey face copyright
-#
-# Revision 1.6  2006/08/10 00:10:45  mjk
-# 4.2 copyright
-#
-# Revision 1.5  2005/10/12 18:09:30  mjk
-# final copyright for 4.1
-#
-# Revision 1.4  2005/04/14 16:30:47  mjk
-# *** empty log message ***
-#
-# Revision 1.3  2005/04/14 16:23:01  mjk
-# *** empty log message ***
-#
-# Revision 1.2  2005/04/14 16:09:38  mjk
-# *** empty log message ***
-#
-# Revision 1.1  2005/04/14 16:05:59  mjk
-# *** empty log message ***
-#
-# Revision 1.2  2004/09/01 19:11:55  mjk
-# *** empty log message ***
-#
-# Revision 1.1  2004/01/15 00:45:17  mjk
-# *** empty log message ***
-#
 
-MAKE.iscontrib = 1
-REDHAT.ROOT = $(PWD)/../../
--include $(ROCKSROOT)/etc/Rules.mk
-include Rules.mk
+. $ROLLSROOT/etc/bootstrap-functions.sh
 
-rpm::
-	if [ ! -d $(REDHAT.ROOT)/RPMS/$(ARCH) ]; then			\
-		 mkdir -p $(REDHAT.ROOT)/RPMS/$(ARCH);			\
-	fi
-	rpmbuild --rebuild *.rpm
-
+install_os_packages gfarm-server
 

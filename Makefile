@@ -55,6 +55,10 @@
 # @Copyright@
 #
 # $Log$
+# Revision 1.9  2010/03/03 18:41:51  mjk
+# - added bootstrap.sh
+# - fix SRPMS building
+#
 # Revision 1.8  2007/06/23 04:03:36  mjk
 # mars hill copyright
 #
@@ -73,7 +77,6 @@
 
 SELFCONTAINED = 1
 COPYRIGHT.FILE = $(shell pwd)/COPYRIGHT
-ROLLSROOT = ..
 -include $(ROLLSROOT)/etc/Rolls.mk
 include Rolls.mk
 
