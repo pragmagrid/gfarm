@@ -15,6 +15,9 @@
 
 	<changelog>
 	$Log$
+	Revision 1.17  2010/03/03 21:46:33  mjk
+	one more try
+	
 	Revision 1.16  2010/03/03 19:11:48  mjk
 	- fixing bootstrap, need to split SRPMS into their own build dirs
 	- added fuse-libs
@@ -86,11 +89,11 @@
 <post>
 
 <!--
-        The GFarm RPMs automatically adds the _gfarm user as a normal account
+        The GFarm RPMs automatically adds the _gfarmfs user as a normal account
         with UID >= 500.  We also need the gfarm admin accout created.
         Here we make sure both UIDs are below 500.
 -->
-/usr/sbin/usermod -u 423 _gfarm
+/usr/sbin/usermod -u 423 _gfarmfs
 /usr/sbin/useradd -c "GFarm Admin" -u 424 gfarm
 
 
@@ -102,15 +105,6 @@
 #!/bin/sh
 
 config-gfarm -A gfarm
-
-<!-- not sure if this is needed -->
-
-/sbin/chkconfig gfarm-pgsql on
-/sbin/chkconfig gfmd on
-/sbin/service gfarm-pgsql stop 
-/sbin/service gfarm-pgsql start
-/sbin/service gfmd stop
-/sbin/service gfmd start
 
 rm /etc/rc.d/rocksconfig.d/post-50-gfarm
 </file>
