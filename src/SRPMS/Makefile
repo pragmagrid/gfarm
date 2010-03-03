@@ -54,6 +54,9 @@
 # @Copyright@
 #
 # $Log$
+# Revision 1.11  2010/03/03 17:58:21  mjk
+# almost there ...
+#
 # Revision 1.10  2007/08/08 08:49:35  nadya
 # remove cp line. it brings old rpms
 #
@@ -93,15 +96,13 @@
 
 MAKE.iscontrib = 1
 REDHAT.ROOT = $(PWD)/../../
-ROCKSROOT = ../../../../..
 -include $(ROCKSROOT)/etc/Rules.mk
 include Rules.mk
 
-SRC_RPMS = $(FUSE)-$(FUSE_VERSION).src.rpm \
-           $(GFARM)-$(GFARM_VERSION).src.rpm \
-		   $(GFARMFS_FUSE)-$(GFARMFS_FUSE_VERSION).src.rpm
 rpm::
-	rpmbuild --rebuild --nodeps $(SRC_RPMS)
-	if [ ! -d ../../RPMS/$(ARCH) ]; then mkdir -p ../../RPMS/$(ARCH); fi
+	if [ ! -d $(REDHAT.ROOT)/RPMS/$(ARCH) ]; then			\
+		 mkdir -p $(REDHAT.ROOT)/RPMS/$(ARCH);			\
+	 fi
+	rpmbuild --rebuild --nodeps *.srpm
 
 

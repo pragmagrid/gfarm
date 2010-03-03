@@ -14,6 +14,9 @@
 
 	<changelog>
 	$Log$
+	Revision 1.14  2010/03/03 17:58:21  mjk
+	almost there ...
+	
 	Revision 1.13  2007/07/31 17:09:04  nadya
 	accommodate new gfarm srpms
 	
@@ -55,8 +58,7 @@
 
 	<package>gfarm-server</package>
 	<package>gfarm-doc</package>
-	<package>gfarm-dbreport</package>
-	<package>rocks-gfarm</package>
+	<package>gfarm-devel</package>
 
 	<package>postgresql</package>
 	<package>postgresql-libs</package>
@@ -66,20 +68,27 @@
 
 <post>
 
-/opt/rocks/sbin/add-new-appliance \
-        --appliance-name gfarm \
-        --xml-config-file-name gfarm-data \
-		--short-name gf
+useradd gfarm
 
-<file name="/etc/rc.d/rocksconfig.d/post-50-gfarm-server" perms="744">
+/opt/rocks/bin/rocks add appliance attr compute gfarm true
+/opt/rocks/bin/rocks add appliance attr compute gfarm_data \
+	/state/partition1/gfarm
+
+<file name="/etc/rc.d/rocksconfig.d/post-50-gfarm" perms="744">
 #!/bin/sh
 
-INTERACTIVE=false /sbin/runuser postgres -c '/bin/rm -f $HOME/.ssh/id_rsa.pub'
-INTERACTIVE=false /sbin/runuser postgres -c 'ssh-keygen -t rsa -N "" -f $HOME/.ssh/id_rsa.pub'
+config-gfarm -A gfarm
 
-config-gfarm  -b postgresql > /dev/null
+<!-- not sure if this is needed -->
 
-rm /etc/rc.d/rocksconfig.d/post-50-gfarm-server
+/sbin/chkconfig gfarm-pgsql on
+/sbin/chkconfig gfmd on
+/sbin/service gfarm-pgsql stop 
+/sbin/service gfarm-pgsql start
+/sbin/service gfmd stop
+/sbin/service gfmd start
+
+rm /etc/rc.d/rocksconfig.d/post-50-gfarm
 </file>
 
 </post>

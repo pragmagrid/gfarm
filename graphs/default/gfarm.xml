@@ -14,6 +14,9 @@
 
 	<changelog>
 	$Log$
+	Revision 1.10  2010/03/03 17:58:21  mjk
+	almost there ...
+	
 	Revision 1.9  2007/08/08 08:52:16  nadya
 	add postgresql dependency. change edges
 	
@@ -37,21 +40,8 @@
 	
 	</changelog>
 
-	<order head="postgresql-server" tail="gfarm-server"/>
-
-	<edge from="server">
-		<to>postgresql-server</to>
-		<to>gfarm-server</to>
-	</edge>
-
-	<edge from="compute">
-		<to>gfarm-base</to>
-	</edge>
-
-	<edge to="gfarm-base">
-		<from>gfarm-agent</from>
-		<from>gfarm-data</from>
-		<from>gfarm-server</from>
-	</edge>
+	<edge from="server" to="gfarm-server"/>
+	<edge from="client" to="gfarm-client"/>
+	<edge from="base"   to="gfarm-base"/>
 
 </graph>

@@ -14,6 +14,9 @@
 
 	<changelog>
 	$Log$
+	Revision 1.1  2010/03/03 17:58:21  mjk
+	almost there ...
+	
 	Revision 1.12  2007/08/12 16:02:49  nadya
 	add gfarm-gfptool package
 	
@@ -50,27 +53,27 @@
 	</changelog>
 
 	<package>gfarm-fsnode</package>
-	<package>gfarm-devel</package>
-	<package>gfarm-gfptool</package>
-	<package>fuse-devel</package>
 
 <post>
-### Put the Gfarm FS node in the database
-GFFSNode=<var name="Kickstart_PublicHostname"/>
-/opt/rocks/bin/rocks add var service=Gfarm component=FSNode value=$GFFSNode
 
 <file name="/etc/gfarm.conf">
 <eval>
-cat /etc/gfarm.conf
+cat /etc/gfarm2.conf
 </eval>
 </file>
 
-<file name="/etc/rc.d/rocksconfig.d/post-50-gfarm-data" perms="744">
+<file name="/etc/rc.d/rocksconfig.d/post-50-gfarm" perms="744">
 #!/bin/sh
 
-config-gfsd /state/partition1/gfarm > /dev/null
+config-gfsd &gfarm_data;
 
-rm /etc/rc.d/rocksconfig.d/post-50-gfarm-data
+su gfarm -c \
+	"/usr/bin/gfhost -c -a `gfarm.arch.guess` -p 600 -n 1 `hostname`"
+
+/sbin/chkconfig gfsd on
+/sbin/service   gfsd start
+
+rm /etc/rc.d/rocksconfig.d/post-50-gfarm
 </file>
 
 </post>
