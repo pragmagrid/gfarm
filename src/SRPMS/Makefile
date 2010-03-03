@@ -54,6 +54,11 @@
 # @Copyright@
 #
 # $Log$
+# Revision 1.12  2010/03/03 18:09:27  mjk
+# - attributes control fsnodes
+# - nuke gfarm-base (won't work until we do attrs on frontend)
+# - time to test
+#
 # Revision 1.11  2010/03/03 17:58:21  mjk
 # almost there ...
 #
@@ -102,7 +107,7 @@ include Rules.mk
 rpm::
 	if [ ! -d $(REDHAT.ROOT)/RPMS/$(ARCH) ]; then			\
 		 mkdir -p $(REDHAT.ROOT)/RPMS/$(ARCH);			\
-	 fi
-	rpmbuild --rebuild --nodeps *.srpm
+	fi
+	rpmbuild --rebuild *.srpm
 
 

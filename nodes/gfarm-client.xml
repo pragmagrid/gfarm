@@ -14,6 +14,11 @@
 
 	<changelog>
 	$Log$
+	Revision 1.2  2010/03/03 18:09:27  mjk
+	- attributes control fsnodes
+	- nuke gfarm-base (won't work until we do attrs on frontend)
+	- time to test
+	
 	Revision 1.1  2010/03/03 17:58:21  mjk
 	almost there ...
 	
@@ -53,6 +58,12 @@
 	</changelog>
 
 	<package>gfarm-fsnode</package>
+        <package>gfarm2fs</package>
+        <package>gfarm-client</package>
+        <package>gfarm-libs</package>
+
+        <package>fuse</package>
+        <package>fuse-devel</package>
 
 <post>
 

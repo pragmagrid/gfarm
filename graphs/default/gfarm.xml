@@ -14,6 +14,11 @@
 
 	<changelog>
 	$Log$
+	Revision 1.11  2010/03/03 18:09:26  mjk
+	- attributes control fsnodes
+	- nuke gfarm-base (won't work until we do attrs on frontend)
+	- time to test
+	
 	Revision 1.10  2010/03/03 17:58:21  mjk
 	almost there ...
 	
@@ -41,7 +46,6 @@
 	</changelog>
 
 	<edge from="server" to="gfarm-server"/>
-	<edge from="client" to="gfarm-client"/>
-	<edge from="base"   to="gfarm-base"/>
+	<edge from="client" to="gfarm-client" cond="gfarm_fsnode"/>
 
 </graph>

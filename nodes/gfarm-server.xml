@@ -5,6 +5,7 @@
 
 	<description>
 	Grid Data Farm Frontend support
+	Assumes the Frontend is the metadata server
 	</description>
 
 	<copyright>
@@ -14,6 +15,11 @@
 
 	<changelog>
 	$Log$
+	Revision 1.15  2010/03/03 18:09:27  mjk
+	- attributes control fsnodes
+	- nuke gfarm-base (won't work until we do attrs on frontend)
+	- time to test
+	
 	Revision 1.14  2010/03/03 17:58:21  mjk
 	almost there ...
 	
@@ -59,6 +65,12 @@
 	<package>gfarm-server</package>
 	<package>gfarm-doc</package>
 	<package>gfarm-devel</package>
+        <package>gfarm2fs</package>
+        <package>gfarm-client</package>
+        <package>gfarm-libs</package>
+
+        <package>fuse</package>
+        <package>fuse-devel</package>
 
 	<package>postgresql</package>
 	<package>postgresql-libs</package>
@@ -68,9 +80,16 @@
 
 <post>
 
-useradd gfarm
+<!--
+        The GFarm RPMs automatically adds the _gfarm user as a normal account
+        with UID >= 500.  We also need the gfarm admin accout created.
+        Here we make sure both UIDs are below 500.
+-->
+/usr/sbin/usermod -u 423 _gfarm
+/usr/sbin/useradd -c "GFarm Admin" -u 424 gfarm
 
-/opt/rocks/bin/rocks add appliance attr compute gfarm true
+
+/opt/rocks/bin/rocks add appliance attr compute gfarm_fsnode true
 /opt/rocks/bin/rocks add appliance attr compute gfarm_data \
 	/state/partition1/gfarm
 
