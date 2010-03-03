@@ -15,6 +15,10 @@
 
 	<changelog>
 	$Log$
+	Revision 1.16  2010/03/03 19:11:48  mjk
+	- fixing bootstrap, need to split SRPMS into their own build dirs
+	- added fuse-libs
+	
 	Revision 1.15  2010/03/03 18:09:27  mjk
 	- attributes control fsnodes
 	- nuke gfarm-base (won't work until we do attrs on frontend)
@@ -70,6 +74,7 @@
         <package>gfarm-libs</package>
 
         <package>fuse</package>
+	<package>fuse-libs</package>
         <package>fuse-devel</package>
 
 	<package>postgresql</package>

@@ -54,53 +54,9 @@
 # @Copyright@
 #
 # $Log$
-# Revision 1.13  2010/03/03 18:41:51  mjk
-# - added bootstrap.sh
-# - fix SRPMS building
-#
-# Revision 1.12  2010/03/03 18:09:27  mjk
-# - attributes control fsnodes
-# - nuke gfarm-base (won't work until we do attrs on frontend)
-# - time to test
-#
-# Revision 1.11  2010/03/03 17:58:21  mjk
-# almost there ...
-#
-# Revision 1.10  2007/08/08 08:49:35  nadya
-# remove cp line. it brings old rpms
-#
-# Revision 1.9  2007/07/31 15:05:26  nadya
-# add srpms names
-#
-# Revision 1.8  2007/06/23 04:03:36  mjk
-# mars hill copyright
-#
-# Revision 1.7  2006/09/11 22:48:38  mjk
-# monkey face copyright
-#
-# Revision 1.6  2006/08/10 00:10:45  mjk
-# 4.2 copyright
-#
-# Revision 1.5  2005/10/12 18:09:30  mjk
-# final copyright for 4.1
-#
-# Revision 1.4  2005/04/14 16:30:47  mjk
-# *** empty log message ***
-#
-# Revision 1.3  2005/04/14 16:23:01  mjk
-# *** empty log message ***
-#
-# Revision 1.2  2005/04/14 16:09:38  mjk
-# *** empty log message ***
-#
-# Revision 1.1  2005/04/14 16:05:59  mjk
-# *** empty log message ***
-#
-# Revision 1.2  2004/09/01 19:11:55  mjk
-# *** empty log message ***
-#
-# Revision 1.1  2004/01/15 00:45:17  mjk
-# *** empty log message ***
+# Revision 1.1  2010/03/03 19:11:48  mjk
+# - fixing bootstrap, need to split SRPMS into their own build dirs
+# - added fuse-libs
 #
 
 MAKE.iscontrib = 1

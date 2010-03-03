@@ -1,16 +1,12 @@
-#!/bin/sh
-#
-# This file should remain OS independent
-#
 # $Id$
 #
 # @Copyright@
 # 
-# 				Rocks(r)
+# 				Rocks(tm)
 # 		         www.rocksclusters.org
-# 		       version 5.2 (Chimichanga)
+# 		        version 4.3 (Mars Hill)
 # 
-# Copyright (c) 2000 - 2009 The Regents of the University of California.
+# Copyright (c) 2000 - 2007 The Regents of the University of California.
 # All rights reserved.	
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -28,7 +24,7 @@
 # 3. All advertising and press materials, printed or electronic, mentioning
 # features or use of this software must display the following acknowledgement: 
 # 
-# 	"This product includes software developed by the Rocks(r)
+# 	"This product includes software developed by the Rocks(tm)
 # 	Cluster Group at the San Diego Supercomputer Center at the
 # 	University of California, San Diego and its contributors."
 # 
@@ -58,21 +54,20 @@
 # @Copyright@
 #
 # $Log$
-# Revision 1.3  2010/03/03 19:11:48  mjk
+# Revision 1.1  2010/03/03 19:11:48  mjk
 # - fixing bootstrap, need to split SRPMS into their own build dirs
 # - added fuse-libs
 #
-# Revision 1.2  2010/03/03 18:41:51  mjk
-# - added bootstrap.sh
-# - fix SRPMS building
-#
 
-. $ROLLSROOT/etc/bootstrap-functions.sh
+MAKE.iscontrib = 1
+REDHAT.ROOT = $(PWD)/../../
+-include $(ROCKSROOT)/etc/Rules.mk
+include Rules.mk
 
-install_os_packages gfarm-server
-
-compile gfarm
-install gfarm-devel
-install gfarm-libs
+rpm::
+	if [ ! -d $(REDHAT.ROOT)/RPMS/$(ARCH) ]; then			\
+		 mkdir -p $(REDHAT.ROOT)/RPMS/$(ARCH);			\
+	fi
+	rpmbuild --rebuild *.rpm
 
 
