@@ -2,11 +2,11 @@
 #
 # @Copyright@
 # 
-# 				Rocks(tm)
+# 				Rocks(r)
 # 		         www.rocksclusters.org
-# 		        version 4.3 (Mars Hill)
+# 		         version 5.4 (Maverick)
 # 
-# Copyright (c) 2000 - 2007 The Regents of the University of California.
+# Copyright (c) 2000 - 2010 The Regents of the University of California.
 # All rights reserved.	
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -24,7 +24,7 @@
 # 3. All advertising and press materials, printed or electronic, mentioning
 # features or use of this software must display the following acknowledgement: 
 # 
-# 	"This product includes software developed by the Rocks(tm)
+# 	"This product includes software developed by the Rocks(r)
 # 	Cluster Group at the San Diego Supercomputer Center at the
 # 	University of California, San Diego and its contributors."
 # 
@@ -54,20 +54,22 @@
 # @Copyright@
 #
 # $Log$
-# Revision 1.1  2010/03/03 19:11:48  mjk
-# - fixing bootstrap, need to split SRPMS into their own build dirs
-# - added fuse-libs
+# Revision 1.2  2011/08/12 00:00:14  zhengc
+# New GFARM Roll
 #
 
-MAKE.iscontrib = 1
-REDHAT.ROOT = $(PWD)/../../
+REDHAT.ROOT = $(CURDIR)/../../
+
 -include $(ROCKSROOT)/etc/Rules.mk
 include Rules.mk
 
-rpm::
-	if [ ! -d $(REDHAT.ROOT)/RPMS/$(ARCH) ]; then			\
-		 mkdir -p $(REDHAT.ROOT)/RPMS/$(ARCH);			\
-	fi
-	rpmbuild --rebuild *.rpm
 
+build::
+	
+install::
+	mkdir -p $(ROOT)/$(PKGROOT)
+	tar xzf $(NAME).tar.gz
+	mv $(NAME) $(ROOT)/$(PKGROOT)
 
+clean::
+	rm -rf $(NAME)

@@ -1,4 +1,6 @@
-RELEASE = 0
-COLOR = Red
+ROLLNAME	= gfarm
+VERSION		= 1.0
+RELEASE		= 0
+COLOR		= darkkhaki
 
-REDHAT.ROOT = $(PWD)
+REDHAT.ROOT	= $(CURDIR)

@@ -4,96 +4,56 @@
 
 
 	<description>
-	Grid Data Farm FS node support
+	Grid Data Farm Client-only support
 	</description>
 
 	<copyright>
-	Copyright (c) 2000 - 2007 The Regents of the University of California.
-	All rights reserved. Rocks(tm) v4.3 www.rocksclusters.org
+	Copyright (c) 2000 - 2010 The Regents of the University of California.
+	All rights reserved. Rocks(r) v5.4 www.rocksclusters.org
+	
 	</copyright>
 
 	<changelog>
 	$Log$
-	Revision 1.4  2010/03/04 00:03:10  mjk
-	done
-	
-	Revision 1.3  2010/03/03 19:11:48  mjk
-	- fixing bootstrap, need to split SRPMS into their own build dirs
-	- added fuse-libs
-	
-	Revision 1.2  2010/03/03 18:09:27  mjk
-	- attributes control fsnodes
-	- nuke gfarm-base (won't work until we do attrs on frontend)
-	- time to test
-	
-	Revision 1.1  2010/03/03 17:58:21  mjk
-	almost there ...
-	
-	Revision 1.12  2007/08/12 16:02:49  nadya
-	add gfarm-gfptool package
-	
-	Revision 1.11  2007/08/07 11:50:24  nadya
-	add devel packages
-	
-	Revision 1.10  2007/07/31 17:09:04  nadya
-	accommodate new gfarm srpms
-	
-	Revision 1.9  2007/06/23 04:03:36  mjk
-	mars hill copyright
-	
-	Revision 1.8  2006/09/11 22:48:38  mjk
-	monkey face copyright
-	
-	Revision 1.7  2006/08/10 00:10:44  mjk
-	4.2 copyright
-	
-	Revision 1.6  2005/10/12 18:09:29  mjk
-	final copyright for 4.1
-	
-	Revision 1.5  2005/04/14 18:11:28  mjk
-	*** empty log message ***
-	
-	Revision 1.4  2005/04/14 16:42:17  mjk
-	*** empty log message ***
-	
-	Revision 1.3  2005/04/14 13:34:55  mjk
-	AIST gets the copyright on this
-	
-	Revision 1.2  2005/04/14 13:18:53  mjk
-	gfarm is an appliance type
+	Revision 1.5  2011/08/12 00:00:14  zhengc
+	New GFARM Roll
 	
 	</changelog>
 
-	<package>gfarm-fsnode</package>
-        <package>gfarm2fs</package>
-        <package>gfarm-client</package>
-        <package>gfarm-libs</package>
+	<package>gfarm2fs</package>
+	<package>gfarm</package>
+	<package>vdt</package>
 
         <package>fuse</package>
 	<package>fuse-libs</package>
         <package>fuse-devel</package>
 
+	<package>postgresql84</package>
+	<package>postgresql84-libs</package>
+	<package>postgresql84-server</package>
+	<package>postgresql84-devel</package>
+	<package>postgresql84-contrib</package>
+	<package>postgresql84-docs</package>
+	<package>postgresql84-plperl</package>
+	<package>postgresql84-plpython</package>
+	<package>postgresql84-pltcl</package>
+	<package>postgresql84-python</package>
+	<package>postgresql84-tcl</package>
+	<package>postgresql84-test</package>
+
 <post>
 
-<file name="/etc/gfarm2.conf">
-<eval>
-cat /etc/gfarm2.conf
-</eval>
+<file name="/etc/profile.d/gfarm.sh" perms="644">
+export PATH="/opt/gfarm/bin:/opt/gfarm2fs/bin:$PATH"
 </file>
 
-<file name="/etc/rc.d/rocksconfig.d/post-50-gfarm" perms="744">
-#!/bin/sh
+cp /opt/vdt/setup.sh /etc/profile.d/globus.sh
 
-config-gfsd &gfarm_data;
-
-su gfarm -c \
-	"/usr/bin/gfhost -c -a `gfarm.arch.guess` -p 600 -n 1 `hostname`"
-
-/sbin/chkconfig gfsd on
-/sbin/service   gfsd start
-
-rm /etc/rc.d/rocksconfig.d/post-50-gfarm
-</file>
+mkdir /etc/grid-security
+crontab -l > /var/tmp/cron.out
+echo "00 02 * * * cd /; /bin/tar xf /etc/grid-security/certs.tar" >> /var/tmp/cron.out
+crontab /var/tmp/cron.out
+rm /var/tmp/cron.out
 
 </post>
 

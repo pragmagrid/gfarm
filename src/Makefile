@@ -2,11 +2,11 @@
 #
 # @Copyright@
 # 
-# 				Rocks(tm)
+# 				Rocks(r)
 # 		         www.rocksclusters.org
-# 		        version 4.3 (Mars Hill)
+# 		         version 5.4 (Maverick)
 # 
-# Copyright (c) 2000 - 2007 The Regents of the University of California.
+# Copyright (c) 2000 - 2010 The Regents of the University of California.
 # All rights reserved.	
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -24,7 +24,7 @@
 # 3. All advertising and press materials, printed or electronic, mentioning
 # features or use of this software must display the following acknowledgement: 
 # 
-# 	"This product includes software developed by the Rocks(tm)
+# 	"This product includes software developed by the Rocks(r)
 # 	Cluster Group at the San Diego Supercomputer Center at the
 # 	University of California, San Diego and its contributors."
 # 
@@ -54,31 +54,16 @@
 # @Copyright@
 #
 # $Log$
-# Revision 1.6  2007/06/23 04:03:36  mjk
-# mars hill copyright
-#
-# Revision 1.5  2006/09/11 22:48:38  mjk
-# monkey face copyright
-#
-# Revision 1.4  2006/08/10 00:10:44  mjk
-# 4.2 copyright
-#
-# Revision 1.3  2005/10/12 18:09:29  mjk
-# final copyright for 4.1
-#
-# Revision 1.2  2005/04/14 13:34:55  mjk
-# AIST gets the copyright on this
-#
-# Revision 1.1  2003/11/05 15:37:53  mjk
-# started gfarm roll
+# Revision 1.7  2011/08/12 00:00:14  zhengc
+# New GFARM Roll
 #
 
+-include $(shell $(ROCKSROOT)/bin/arch).mk
+-include $(shell $(ROCKSROOT)/bin/os).mk
 
-SRCDIRS = `find . -type d -maxdepth 1 -not -name CVS -not -name .`
+default:	pkg
 
-default:	rpm
-
-copyright rpm clean::
+copyright pkg rpm clean::
 	for i in $(SRCDIRS) ; do \
-		(cd $$i; make $@) ; \
+		(cd $$i; $(MAKE) $@) ; \
 	done
