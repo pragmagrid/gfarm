@@ -16,6 +16,10 @@
 
 	<changelog>
 	$Log$
+	Revision 1.19  2011/08/17 19:53:53  zhengc
+	Fix file synchronization problem between frontend and compute nodes
+	The files are: certificates directory and gfarm2.conf
+	
 	Revision 1.18  2011/08/12 00:00:14  zhengc
 	New GFARM Roll
 	
@@ -71,10 +75,11 @@ vdt-control --on
 vdt-update-certs --force
 
 crontab -l > /var/tmp/cron.out
-echo "00 01 * * * /usr/bin/find /etc/grid-security/certificates/ -type f | xargs /bin/tar -c -f /etc/grid-security/certs.tar" >> /var/tmp/cron.out
+echo "00 01 * * * /bin/tar -chf /etc/grid-security/certs.tar /etc/grid-security/certificates" >> /var/tmp/cron.out
 crontab /var/tmp/cron.out
 rm /var/tmp/cron.out
-echo "FILES += /etc/grid-security/certs.tar" >> /var/411/Files.mk
+/bin/tar -chf /etc/grid-security/certs.tar /etc/grid-security/certificates
+echo "FILES += /etc/grid-security/certs.tar /opt/gfarm/etc/gfarm2.conf" >> /var/411/Files.mk
 rocks sync users
 
 mv /etc/sysconfig/iptables /etc/sysconfig/iptables.orig
