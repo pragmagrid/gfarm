@@ -15,6 +15,9 @@
 
 	<changelog>
 	$Log$
+	Revision 1.6  2011/09/16 22:17:11  phil
+	permissions on fusermount
+	
 	Revision 1.5  2011/08/12 00:00:14  zhengc
 	New GFARM Roll
 	
@@ -55,6 +58,7 @@ echo "00 02 * * * cd /; /bin/tar xf /etc/grid-security/certs.tar" >> /var/tmp/cr
 crontab /var/tmp/cron.out
 rm /var/tmp/cron.out
 
+/bin/chmod o+rx /bin/fusermount
 </post>
 
 </kickstart>

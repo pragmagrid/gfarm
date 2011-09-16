@@ -16,6 +16,9 @@
 
 	<changelog>
 	$Log$
+	Revision 1.20  2011/09/16 22:17:11  phil
+	permissions on fusermount
+	
 	Revision 1.19  2011/08/17 19:53:53  zhengc
 	Fix file synchronization problem between frontend and compute nodes
 	The files are: certificates directory and gfarm2.conf
@@ -111,7 +114,7 @@ sudo -u gfarm gfgroup -m gfarmroot gfarm
 
 rm /etc/rc.d/rocksconfig.d/post-50-gfarm
 </file>
-
+/bin/chmod o+rx /bin/fusermount
 </post>
 
 </kickstart>
