@@ -54,6 +54,9 @@
 # @Copyright@
 #
 # $Log$
+# Revision 1.3  2011/09/16 22:13:56  phil
+# Put gfarm lib directory into the ld search path.
+#
 # Revision 1.2  2011/08/12 00:00:14  zhengc
 # New GFARM Roll
 #
@@ -68,8 +71,10 @@ build::
 	
 install::
 	mkdir -p $(ROOT)/$(PKGROOT)
-	tar xzf $(NAME).tar.gz
+	$(TAR) xzf $(NAME).tar.gz
 	mv $(NAME) $(ROOT)/$(PKGROOT)
+	mkdir -p $(ROOT)/etc/ld.so.conf.d
+	$(INSTALL) -m 644 ld.conf.gfarm $(ROOT)/etc/ld.so.conf.d/gfarm.conf
 
 clean::
 	rm -rf $(NAME)
