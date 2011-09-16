@@ -16,6 +16,9 @@
 
 	<changelog>
 	$Log$
+	Revision 1.21  2011/09/16 22:21:04  phil
+	Firewall rules via the rocks database (5.4.3), should work for 5.4
+	
 	Revision 1.20  2011/09/16 22:17:11  phil
 	permissions on fusermount
 	
@@ -85,9 +88,9 @@ rm /var/tmp/cron.out
 echo "FILES += /etc/grid-security/certs.tar /opt/gfarm/etc/gfarm2.conf" >> /var/411/Files.mk
 rocks sync users
 
-mv /etc/sysconfig/iptables /etc/sysconfig/iptables.orig
-sed '17 i\-A INPUT -p tcp --dport 600 -j ACCEPT\n-A INPUT -p udp --dport 600 -j ACCEPT\n-A INPUT -p tcp --dport 601 -j ACCEPT' /etc/sysconfig/iptables.orig > /etc/sysconfig/iptables
-chmod 500 /etc/sysconfig/iptables
+/opt/rocks/bin/rocks add firewall global=global action=ACCEPT chain=INPUT protocol=udp service=600 network=all rulename=A100-GFARM-UDP-600
+/opt/rocks/bin/rocks add firewall global=global action=ACCEPT chain=INPUT protocol=tcp service=600 network=all rulename=A100-GFARM-TCP-600
+/opt/rocks/bin/rocks add firewall global=global action=ACCEPT chain=INPUT protocol=tcp service=601 network=all rulename=A100-GFARM-TCP-601
 
 config-gfarm -A gfarm -a gsi -X
 
