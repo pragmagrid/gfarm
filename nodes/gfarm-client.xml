@@ -15,6 +15,9 @@
 
 	<changelog>
 	$Log$
+	Revision 1.7  2011/09/19 20:00:17  zhengc
+	Add vm-deploy scripts
+	
 	Revision 1.6  2011/09/16 22:17:11  phil
 	permissions on fusermount
 	
@@ -26,6 +29,7 @@
 	<package>gfarm2fs</package>
 	<package>gfarm</package>
 	<package>vdt</package>
+	<package>vm-scripts</package>
 
         <package>fuse</package>
 	<package>fuse-libs</package>

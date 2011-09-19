@@ -16,6 +16,9 @@
 
 	<changelog>
 	$Log$
+	Revision 1.22  2011/09/19 20:00:17  zhengc
+	Add vm-deploy scripts
+	
 	Revision 1.21  2011/09/16 22:21:04  phil
 	Firewall rules via the rocks database (5.4.3), should work for 5.4
 	
@@ -34,6 +37,7 @@
 	<package>gfarm2fs</package>
 	<package>gfarm</package>
 	<package>vdt</package>
+	<package>vm-scripts</package>
 
         <package>fuse</package>
 	<package>fuse-libs</package>
