@@ -1,0 +1,338 @@
+#!/bin/bash
+#
+# vm-deploy - deploy a single-node VM use a VM disk image file in Gfarm
+# 
+# V1.0 - 9/17/11, Cindy Zheng, zhengc@sdsc.edu
+#
+
+#
+# Local admin need to adjust the installation directory
+# -----------------------------------------------------
+scriptdir="/opt/vm-scripts"
+
+#
+# This script should be run in an user account
+# 
+# $ vm-deploy <vm-image-name> 
+#
+if [ -z $1 ] || [ $# != 1 ];
+then
+  echo "Usage: vm-deploy <vm-image-name>";
+  exit 1
+fi
+
+#
+# Start log
+#
+log=$HOME/vm-deploy.log
+username=$(whoami)
+if [ "$username" = "root" ];
+then
+  echo "Please run this in an user account";
+  exit 2
+fi
+echo "$(date): $username starts vm-deploy $1" >> $log
+
+# 
+# Get local settings
+#
+info=$(grep -v "#" $scriptdir/LocalSettings | grep vmcontainer | head -1)
+if [ -z "$info" ];
+then
+  echo "vmcontainer is not defined in $scriptdir/LocalSettings" | tee -a $log;
+  echo "Please report to your system administrator";
+  exit 3
+fi
+vmcontainer=$(echo $info | cut -d'=' -f2)
+
+info=$(grep -v "#" $scriptdir/LocalSettings | grep gfarmvmdir | head -1)
+if [ -z "$info" ];
+then
+  echo "gfarmvmdir is not defined in $scriptdir/LocalSettings" | tee -a $log;
+  echo "Please report to your system administrator";
+  exit 4
+fi
+gfarmvmdir=$(echo $info | cut -d'=' -f2)
+
+info=$(grep -v "#" $scriptdir/LocalSettings | grep gfarmvmlist | head -1)
+if [ -z "$info" ];
+then
+  echo "gfarmvmlist is not defined in $scriptdir/LocalSettings" | tee -a $log;
+  echo "Please report to your system administrator";
+  exit 5
+fi
+gfarmvmlist=$(echo $info | cut -d'=' -f2)
+
+info=$(grep -v "#" $scriptdir/LocalSettings | grep vmsuffix | head -1)
+if [ -z "$info" ];
+then
+  echo "vmsuffix is not defined in $scriptdir/LocalSettings" | tee -a $log;
+  echo "Please report to your system administrator";
+  exit 6
+fi
+vmsuffix=$(echo $info | cut -d'=' -f2)
+
+info=$(grep -v "#" $scriptdir/LocalSettings | grep netmask | head -1)
+if [ -z "$info" ];
+then
+  echo "netmask is not defined in $scriptdir/LocalSettings" | tee -a $log;
+  echo "Please report to your system administrator";
+  exit 7
+fi
+netmask=$(echo $info | cut -d'=' -f2)
+
+info=$(grep -v "#" $scriptdir/LocalSettings | grep gateway | head -1)
+if [ -z "$info" ];
+then
+  echo "gateway is not defined in $scriptdir/LocalSettings" | tee -a $log;
+  echo "Please report to your system administrator";
+  exit 8
+fi
+gateway=$(echo $info | cut -d'=' -f2)
+
+#
+# Resulting VM name is the input vm-name concatanated with username
+#
+uservm=$1"-"$username
+
+#
+# Check vm-name
+#
+uservmcolon=$uservm":"
+vminfo=$(rocks list host vm | grep "$uservmcolon")
+if [ -n "$vminfo" ];
+then
+  echo "$uservm already exist" | tee -a $log;
+  echo "$vminfo" | tee -a $log;
+  echo "No VM is created. Exit." | tee -a $log;
+  exit 9
+fi
+
+#
+# Check user gfarm access
+#
+gfls > /dev/null 2>&1
+if [ $? -ne 0 ];
+then
+  echo "Failed to access Gfarm file system";
+  echo "Check Gfarm access by manually run a gfarm command";
+  echo "Try again after you fix the Gfarm access problem";
+  echo "exit";
+  echo "User failed Gfarm access test. Quit." >> $log;
+  exit 10
+fi
+
+#
+# Check available ip
+#
+vminfo=$(grep -v "#" $scriptdir/AvailableIP | head -1)
+if [ -z "$vminfo" ];
+then
+  echo "No more unallocated ip in $scriptdir/AvailableIP file";
+  echo "exit";
+  echo "All ip# in $scriptdir/AvailableIP are marked used. Quit." >> $log;
+  exit 11
+fi
+vmip=$(echo $vminfo | cut -d' ' -f1)
+vmhostname=$(echo $vminfo | cut -d' ' -f2)
+
+#
+# Check vm-file-name
+#
+vmnamecomma=$1","
+vminfo=$(gfexport $gfarmvmlist | grep $vmnamecomma)
+if [ -z "$vminfo" ];
+then
+  echo "$1 does not exist in gfarm:$gfarmvmlist";
+  echo "exit";
+  echo "No match for $1 in gfarm:$gfarmvmlist. Quit." >> $log;
+  exit 12
+fi
+
+vmname=$(echo $vminfo | cut -d',' -f1)
+vmtype=$(echo $vminfo | cut -d',' -f2)
+vmpath=$(echo $vminfo | cut -d',' -f3)
+#
+# Uncomment the line below to do md5sum-check when fetch gfarm file
+# Take a few minutes longer in runtime
+#
+#vmmd5sum=$(echo $vminfo | cut -d',' -f4)
+
+#
+# Check disk space
+#
+# How big is the image file?
+#
+vminfo=$(gfls -l $gfarmvmdir/$vmpath)
+if [ -z "$vminfo" ];
+then
+  echo "Inconsistence: $1 image file does not exist, but it's defined in gfarm:$gfarmvmlist";
+  echo "Please ask your Gfarm metaserver administrator to fix this problem, then try again.";
+  echo "Bye for now";
+  echo "No match for $vmpath in gfarm:$gfarmvmlist. Gfarm admin need to fix this. Quit." >> $log;
+  exit 13
+fi
+#
+# Get vm.gz size in bytes, converts to KB,
+# Estimated disk space required: gunzip size is 10x of gz size
+#
+vmsize=$(echo $vminfo | cut -d' ' -f5)
+let "vmsize/=100"
+
+#
+# How much disk space is available
+#
+diskinfo=$(df $HOME | tail -1)
+if [ -z "$diskinfo" ];
+then
+  echo "df $HOME produced no output. Please report this to the system administrator";
+  echo "Sorry, can't go on. Bye for now";
+  echo "df $HOME output is nil - should never happen. Sysadmin has to figure this out. Quit." >> $log;
+  exit 14
+fi
+
+space=$(echo $diskinfo | cut -d' ' -f3)
+
+#
+# Enough disk space?
+#
+if [ "$vmsize" -gt "$space" ];
+then
+  echo "Insufficient available disk space in user home directory partition";
+  echo "Sorry, can't go on. Bye for now";
+  echo "Insufficient available disk space in $HOME. Needs $vmsize KB, only got $space KB. Quit." >> $log;
+  exit 15
+fi
+
+#
+# Get VM image from gfarm
+#
+echo "Fetching VM image $vmpath... May take several minutes"
+gfexport $gfarmvmdir/$vmpath | gunzip > $HOME/$uservm$vmsuffix
+#
+# To check-sum the gfarm file, comment-out the line above and
+# uncomment the lines below. It will take a few minutes longer in runtime.
+#
+#info=$(gfexport $gfarmvmdir/$vmpath | tee $HOME/$uservm$vmsuffix.gz | md5sum)
+#checksum=$(echo $info | cut -d' ' -f1)
+#if [ "$checksum" != "$vmmd5sum" ];
+#then
+#  echo "Checksum is $checksum for $HOME/$uservm$vmsuffix.gz, should be $vmmd5sum " >> $log;
+#  echo "Checksum problem. See $HOME/vm-deploy.log for more info.";
+#  echo "Sorry, cannot go on... Exit.";
+#  exit 16
+#fi
+#gunzip $HOME/$uservm$vmsuffix.gz
+
+#
+# Create a new VM
+#
+echo "Creating new VM $uservm... May take a few minutes"
+sudo $scriptdir/vm-new $vmcontainer $uservm $vmip $scriptdir/AvailableIP
+if [ $? = 1 ];
+then
+  echo "Failed to create new VM $uservm";
+  echo "Please report the problem to system administrator";
+  echo "Exit";
+  echo "$scriptdir/vm-new returned 1 to $scriptdir/vm-deploy" >> $log;
+  exit 17
+fi
+if [ $? = 2 ];
+then
+  echo "Failed to set network interface for VM $uservm";
+  echo "Please report the problem to system administrator";
+  echo "Exit";
+  echo "$scriptdir/vm-new returned 2 to $scriptdir/vm-deploy" >> $log;
+  exit 18
+fi
+if [ $? = 3 ];
+then
+  echo "Failed to set network interface ip for VM $uservm";
+  echo "Please report the problem to system administrator";
+  echo "Exit";
+  echo "$scriptdir/vm-new returned 3 to $scriptdir/vm-deploy" >> $log;
+  exit 19
+fi
+if [ $? = 4 ];
+then
+  echo "Script vm-deploy: wrong number of options for vm-new";
+  echo "Please report the problem to system administrator";
+  echo "Exit";
+  echo "$scriptdir/vm-new returned 4 to $scriptdir/vm-deploy" >> $log;
+  exit 20
+fi
+if [ $? != 0 ];
+then
+  echo "Unknown error code $? returned by $scriptdir/vm-new";
+  echo "Please report the problem to system administrator";
+  echo "Exit";
+  echo "$scriptdir/vm-new returned $? to $scriptdir/vm-deploy" >> $log;
+  exit 21
+fi
+echo "VM $uservm has been created" >> $log
+rocks list host vm $uservm >> $log
+
+#
+# Run vm-makeover
+#
+echo "Modifying VM image $vmpath..."
+sudo $scriptdir/vm-makeover $uservm $HOME/$uservm$vmsuffix $HOME/vm-mnt $vmhostname $vmip $netmask $gateway
+if [ $? = 1 ];
+then
+  echo "Script vm-deploy: wrong number of options for vm-makeover";
+  echo "Please report the problem to system administrator";
+  echo "$scriptdir/vm-makeover returned 1 to $scriptdir/vm-deploy" >> $log;
+  echo "Exit";
+  exit 22
+fi
+if [ $? = 2 ];
+then
+  echo "Failed to un-mount $HOME/vm-mnt";
+  echo "Please report the problem to system administrator";
+  echo "$scriptdir/vm-makeover returned 2 to $scriptdir/vm-deploy" >> $log;
+  echo "Exit";
+  exit 23
+fi
+if [ $? = 3 ];
+then
+  echo "Failed to set VM disk image path";
+  echo "Please report the problem to system administrator";
+  echo "$scriptdir/vm-makeover returned 3 to $scriptdir/vm-deploy" >> $log;
+  echo "Exit";
+  exit 24
+fi
+if [ $? = 4 ];
+then
+  echo "Failed to mount VM image on $HOME/vm-mnt";
+  echo "Please report the problem to system administrator";
+  echo "$scriptdir/vm-makeover returned 4 to $scriptdir/vm-deploy" >> $log;
+  echo "Exit";
+  exit 25
+fi
+if [ $? = 5 ];
+then
+  echo "Failed to set boot action to os for $uservm";
+  echo "Please report the problem to system administrator";
+  echo "$scriptdir/vm-makeover returned 5 to $scriptdir/vm-deploy" >> $log;
+  echo "Exit";
+  exit 26
+fi
+if [ $? = 6 ];
+then
+  echo "Failed to start $uservm";
+  echo "Please report the problem to system administrator";
+  echo "$scriptdir/vm-makeover returned 6 to $scriptdir/vm-deploy" >> $log;
+  echo "Exit";
+  exit 27
+fi
+if [ $? != 0 ];
+then
+  echo "Failed to modify or start VM image $uservm";
+  echo "Unknown error code $? returned by $scriptdir/vm-makeover to $scriptdir/vm-deploy" >> $log;
+  echo "Exit";
+  exit 28
+fi
+
+echo "Success! New VM $uservm has been started at $(date)"
+echo "$(date): Successful completion of $uservm deployment" >> $log
+exit 0

@@ -1,0 +1,41 @@
+#!/bin/bash
+#
+# vm-new creates a new vm and should be only sudo-run by vm-deploy
+#
+# V1.0 - 9/17/11, Cindy Zheng, zhengc@sdsc.edu
+#
+
+#
+# vm-new $vmcontainer $uservm $vmip $availableip
+#
+
+if [ $# != 4 ];
+then
+  exit 4
+fi
+
+/opt/rocks/bin/rocks add host vm $1 membership="hosted vm" name=$2
+if [ $? != 0 ];
+then
+  exit 1
+fi
+/opt/rocks/bin/rocks set host interface subnet $2 eth0 public
+if [ $? != 0 ];
+then
+  /opt/rocks/bin/rocks remove host $2;
+  exit 2
+fi
+/opt/rocks/bin/rocks set host interface ip $2 eth0 $3 
+if [ $? != 0 ];
+then
+  /opt/rocks/bin/rocks remove host $2;
+  exit 3
+fi
+
+#
+# New VM is created successfully
+# Mark the ip# used in availableip.txt
+#
+sed -i "s/$3/#$3/" $4
+
+exit 0
