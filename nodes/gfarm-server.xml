@@ -16,6 +16,9 @@
 
 	<changelog>
 	$Log$
+	Revision 1.23  2011/10/07 19:12:20  phil
+	Slight graph re-arrangement.  Add a common file to reduce code redundancy.
+	
 	Revision 1.22  2011/09/19 20:00:17  zhengc
 	Add vm-deploy scripts
 	
@@ -34,28 +37,6 @@
 	
 	</changelog>
 
-	<package>gfarm2fs</package>
-	<package>gfarm</package>
-	<package>vdt</package>
-	<package>vm-scripts</package>
-
-        <package>fuse</package>
-	<package>fuse-libs</package>
-        <package>fuse-devel</package>
-
-	<package>postgresql84</package>
-	<package>postgresql84-libs</package>
-	<package>postgresql84-server</package>
-	<package>postgresql84-devel</package>
-	<package>postgresql84-contrib</package>
-	<package>postgresql84-docs</package>
-	<package>postgresql84-plperl</package>
-	<package>postgresql84-plpython</package>
-	<package>postgresql84-pltcl</package>
-	<package>postgresql84-python</package>
-	<package>postgresql84-tcl</package>
-	<package>postgresql84-test</package>
-
 <post>
 
 <!--
@@ -67,14 +48,8 @@
 /usr/sbin/useradd -c "Gfarm Admin" -u 424 gfarm
 
 
-<file name="/etc/profile.d/gfarm.sh" perms="644">
-export PATH="/opt/gfarm/bin:/opt/gfarm2fs/bin:$PATH"
-</file>
-
 <file name="/etc/rc.d/rocksconfig.d/post-50-gfarm.sh" perms="744">
 #!/bin/sh
-
-rpm -i /export/rocks/install/rocks-dist/x86_64/RedHat/RPMS/libxslt-1.1.17-2.el5_2.2.i386.rpm
 
 source /opt/vdt/setup.sh
 cp /opt/vdt/setup.sh /etc/profile.d/globus.sh
@@ -84,12 +59,9 @@ mkdir -p /etc/grid-security
 vdt-control --on
 vdt-update-certs --force
 
-crontab -l > /var/tmp/cron.out
-echo "00 01 * * * /bin/tar -chf /etc/grid-security/certs.tar /etc/grid-security/certificates" >> /var/tmp/cron.out
-crontab /var/tmp/cron.out
-rm /var/tmp/cron.out
 /bin/tar -chf /etc/grid-security/certs.tar /etc/grid-security/certificates
 echo "FILES += /etc/grid-security/certs.tar /opt/gfarm/etc/gfarm2.conf" >> /var/411/Files.mk
+
 rocks sync users
 
 /opt/rocks/bin/rocks add firewall global=global action=ACCEPT chain=INPUT protocol=udp service=600 network=all rulename=A100-GFARM-UDP-600
@@ -121,7 +93,6 @@ sudo -u gfarm gfgroup -m gfarmroot gfarm
 
 rm /etc/rc.d/rocksconfig.d/post-50-gfarm
 </file>
-/bin/chmod o+rx /bin/fusermount
 </post>
 
 </kickstart>

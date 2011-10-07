@@ -1,0 +1,73 @@
+<?xml version="1.0" standalone="no"?>
+
+<kickstart>
+
+
+	<description>
+	Grid Data Farm - Common Files 
+	</description>
+
+	<copyright>
+	Copyright (c) 2000 - 2010 The Regents of the University of California.
+	All rights reserved. Rocks(r) v5.4 www.rocksclusters.org
+	
+	</copyright>
+
+	<changelog>
+	$Log$
+	Revision 1.1  2011/10/07 19:12:20  phil
+	Slight graph re-arrangement.  Add a common file to reduce code redundancy.
+	
+	</changelog>
+
+	<package>gfarm2fs</package>
+	<package>gfarm</package>
+	<package>vdt</package>
+	<package>vm-scripts</package>
+
+        <package>fuse</package>
+	<package>fuse-libs</package>
+        <package>fuse-devel</package>
+
+	<package>postgresql84</package>
+	<package>postgresql84-libs</package>
+	<package>postgresql84-server</package>
+	<package>postgresql84-devel</package>
+	<package>postgresql84-contrib</package>
+	<package>postgresql84-docs</package>
+	<package>postgresql84-plperl</package>
+	<package>postgresql84-plpython</package>
+	<package>postgresql84-pltcl</package>
+	<package>postgresql84-python</package>
+	<package>postgresql84-tcl</package>
+	<package>postgresql84-test</package>
+
+	<package>libxslt.i386</package>
+<post>
+
+<file name="/etc/profile.d/gfarm.sh" perms="644">
+export PATH="/opt/gfarm/bin:/opt/gfarm2fs/bin:$PATH"
+</file>
+
+cp /opt/vdt/setup.sh /etc/profile.d/globus.sh
+
+<file name="/etc/rc.d/rocksconfig.d/post-51-gfarm-certificates" perms="744">
+#!/bin/sh
+cd /
+/bin/tar xf /etc/grid-security/certs.tar >> /var/tmp/cron.out
+rm /etc/rc.d/rocksconfig.d/post-51-gfarm-certificates
+</file>
+
+/bin/chmod o+rx /bin/fusermount
+
+
+mkdir /etc/grid-security
+crontab -l > /var/tmp/cron.out
+echo "00 02 * * * cd /; /bin/tar xf /etc/grid-security/certs.tar" >> /var/tmp/cron.out
+crontab /var/tmp/cron.out
+rm /var/tmp/cron.out
+
+/bin/chmod o+rx /bin/fusermount
+</post>
+
+</kickstart>

@@ -14,6 +14,9 @@
 
 	<changelog>
 	$Log$
+	Revision 1.13  2011/10/07 19:12:20  phil
+	Slight graph re-arrangement.  Add a common file to reduce code redundancy.
+	
 	Revision 1.12  2011/08/11 23:50:20  zhengc
 	Start of new gfarm roll
 	
@@ -22,5 +25,6 @@
 	<!-- add edges here -->
 	<edge from="server" to="gfarm-server"/>
 	<edge from="client" to="gfarm-client"/>
+	<edge from="base" to="gfarm-common"/>
 
 </graph>
