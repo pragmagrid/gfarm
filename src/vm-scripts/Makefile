@@ -54,6 +54,9 @@
 # @Copyright@
 #
 # $Log$
+# Revision 1.3  2011/10/07 19:11:07  phil
+# Update to put scripts in correct location
+#
 # Revision 1.2  2011/10/07 09:28:19  zhengc
 # Part of vm-script version 2, to deploy VM to vm-containers as well as to frontend
 #
@@ -74,9 +77,9 @@ include Rules.mk
 build::
 	
 install::
-	mkdir -p $(ROOT)/$(PKGROOT)
+	mkdir -p $(ROOT)/$(PKGROOT)/$(NAME)
 	for i in $(SCRIPTS); do \
-		install -m 755 $$i $(ROOT)/$(PKGROOT); \
+		install -m 755 $$i $(ROOT)/$(PKGROOT)/$(NAME); \
 	done
 
 clean::
