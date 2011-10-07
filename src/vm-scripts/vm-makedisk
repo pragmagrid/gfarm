@@ -1,0 +1,73 @@
+#!/bin/bash
+#
+# vm-makedisk <vm-name> <vm-image-full-path> <vm-hostname> <vm-ip> <netmask> <gateway> <vmsize> <vm-gfarm-path> <scriptdir>
+#
+# Place then modify VM image file.
+#
+# Only should be run by vm-deploy
+#
+# V2.0 - 10/4/11, Cindy Zheng, zhengc@sdsc.edu
+# 
+
+if [ $# != 9 ];
+then
+  exit 1
+fi
+
+#
+# Quit if the vm image file already exist
+#
+if [ -e $2 ];
+then
+  exit 2
+fi
+
+#
+# How much disk space is available
+#
+/bin/touch $2
+diskinfo=$(df $2 | tail -1)
+if [ -z "$diskinfo" ];
+then
+  /bin/rm -f /tmp/$1.tmp;
+  exit 3
+fi
+space=$(echo $diskinfo | cut -d' ' -f3)
+echo "space = $space"
+
+#
+# Enough disk space?
+#
+if [ "$7" -gt "$space" ];
+then
+  /bin/rm -f /tmp/$1.tmp;
+  exit 4
+fi
+
+#
+# Check user gfarm access
+#
+gfls > /dev/null 2>&1
+if [ $? -ne 0 ];
+then
+  /bin/rm -f /tmp/$1.tmp;
+  exit 5
+fi
+
+#
+# Get VM image from gfarm
+#
+echo "Fetching VM image $8... May take several minutes"
+gfexport $8 | gunzip > $2
+
+echo "sudo $9/vm-makeover $1 $2 $3 $4 $5 $6 $9"
+sudo $9/vm-makeover $1 $2 $3 $4 $5 $6 $9
+if [ $? -eq 0 ];
+then
+  /bin/rm -f /tmp/$1.tmp;
+  exit 0
+fi
+result = $? + 5
+/bin/rm -f /tmp/$1.tmp;
+echo "result = $result"
+exit $result

@@ -1,0 +1,30 @@
+#!/bin/bash
+#
+# vm-start <uservm>
+#
+# It should be only sudo-run by vm-deploy
+#
+# V2.0 - 10/4/11, Cindy Zheng, zhengc@sdsc.edu
+#
+
+if [ $# -ne 1 ];
+then
+  exit 1
+fi
+
+#
+# Start VM
+#
+/opt/rocks/bin/rocks set host boot action=os $1
+if [ $? -ne 0 ];
+then
+  exit 2
+fi
+
+/opt/rocks/bin/rocks start host vm $1
+if [ $? -ne 0 ];
+then
+  exit 3
+fi
+
+exit 0

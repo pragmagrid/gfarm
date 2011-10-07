@@ -1,0 +1,29 @@
+#!/bin/bash
+#
+# vm-cleanup <uservm> <vmip> <availableip>
+#
+# It should be only sudo-run by vm-deploy
+#
+# V2.0 - 10/4/11, Cindy Zheng, zhengc@sdsc.edu
+#
+
+if [ $# != 3 ];
+then
+  exit 4
+fi
+
+#
+# Remove the new VM
+#
+/opt/rocks/bin/rocks remove host $1
+if [ $? -ne 0 ];
+then
+  exit 1
+fi
+
+#
+# Unmark the ip# used in Availableip
+#
+sed -i "s/#$2/$2/" $3
+
+exit 0

@@ -54,6 +54,9 @@
 # @Copyright@
 #
 # $Log$
+# Revision 1.2  2011/10/07 09:28:19  zhengc
+# Part of vm-script version 2, to deploy VM to vm-containers as well as to frontend
+#
 # Revision 1.1  2011/10/04 20:55:28  zhengc
 # Scripty stuff.
 #
@@ -62,7 +65,7 @@
 #
 
 REDHAT.ROOT = $(CURDIR)/../../
-SCRIPTS = AvailableIP LocalSettings vm-deploy vm-makeover vm-new
+SCRIPTS = AvailableIP LocalSettings resolv.conf vm-cleanup vm-deploy vm-makedisk vm-makeover vm-new vm-start
 
 -include $(ROCKSROOT)/etc/Rules.mk
 include Rules.mk

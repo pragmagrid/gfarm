@@ -3,16 +3,6 @@
 # This file is used by vm-deploy script to get local settings.
  
 #
-# The vm-container in which to deploy new VMs.
-# For now, the vm-deploy is designed to create one single-node
-# VM instance on the frontend. In the future, when vm-deploy
-# can deploy VM on other or multiple vm-containers,
-# this setting will be more meaningful and its format may change.
-# But now, just set to the frontend only.
-#
-vmcontainer=fiji.rocksclusters.org
-
-#
 # Gfarm VM disk images directory and database 
 #
 gfarmvmdir=/vm-images
@@ -24,14 +14,25 @@ gfarmvmlist=/vm-images/vmdb.txt
 vmsuffix=.hda
 
 #
-# Local network settings
+# network, netmask and gateway settings for new VMs
 #
+nettype=public
 netmask=255.255.255.0
 gateway=198.202.88.20
 
 #
-# Reminder of other local settings need to be done:
+# Reminder of other local settings need to be done on all your installations:
+# (Best to finish settings before copy the directory to other local systems)
 #
 # 1. Set the "scriptdir" in vm-deploy to the scripts installation path
 # 2. Add all IP# allocated for vm-deploy script to the AvailableIP file
+# 3. Adjust resolv.conf for your VM
+# 4. Create vmdisks group and give it rwx access to VM disk image 
+#    directory path on all vm-containers
+#    $ ls -ld /state/partition1/xen 
+#    drwxr-x--- 4 root vmdisks 4096 Jan  7  2011 /state/partition1/xen
+#    $ ls -ld /state/partition1/xen/disks
+#    drwxrwx--- 2 root vmdisks 4096 Oct  5 00:05 /state/partition1/xen/disks
+# 5. Add the following line in /etc/sudoers on all vm-containers
+#    %vmdisks NOPASSWD:/opt/vm-scripts/vm-new, /opt/vm-scripts/vm-makeover, /opt/vm-scripts/vm-start, /opt/vm-scripts/vm-cleanup
 #
