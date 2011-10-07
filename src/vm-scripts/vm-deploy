@@ -109,8 +109,8 @@ then
   exit 7
 fi
 gateway=$(echo $info | cut -d'=' -f2)
+# debugging echo
 echo "$gfarmvmdir, $gfarmvmlist, $vmsuffix, $nettype, $netmask, $gateway"
-exit
 
 #
 # Resulting VM name is the input vm-name concatanated 
@@ -124,6 +124,8 @@ then
 else
   uservm=$1"-"$username
 fi
+# debugging echo
+echo "uservm = $uservm"
 
 #
 # Check vm-name
@@ -182,6 +184,8 @@ fi
 vmname=$(echo $vminfo | cut -d',' -f1)
 vmtype=$(echo $vminfo | cut -d',' -f2)
 vmpath=$(echo $vminfo | cut -d',' -f3)
+# debugging echo
+echo "vmip = $vmip, vmhostname = $vmhostname, vmname=$vmname, vmtype = $vmtype, vmpath = $vmpath"
 
 #
 # Uncomment the line below to do md5sum-check when fetch gfarm file
@@ -207,11 +211,15 @@ fi
 #
 vmsize=$(echo $vminfo | cut -d' ' -f5)
 let "vmsize/=100"
+# debugging echo
+echo "disk space required is $vmsize KB"
 
 #
 # Create a new VM
 #
 echo "Creating new VM $uservm... May take a few minutes"
+# debugging echo
+echo "sudo $scriptdir/vm-new $vmcontainer $uservm $vmip $scriptdir/AvailableIP $nettype $HOME"
 sudo $scriptdir/vm-new $vmcontainer $uservm $vmip $scriptdir/AvailableIP $nettype $HOME
 if [ $? -eq 1 ];
 then
@@ -282,6 +290,8 @@ then
     /usr/bin/scp $proxypath $vmcontainer:$proxypath
   fi
 fi
+# debugging echo
+echo "Check $vmcontainer:/tmp/$uservm.tmp. proxypath = $proxypath"
 
 #
 # Place VM image file in specified vm-container node
@@ -291,9 +301,9 @@ substr1=$(echo $info | cut -d' ' -f6)
 substr2=$(echo $substr1 | cut -d':' -f2)
 diskpath=$(echo $substr2 | cut -d',' -f1)
 echo "Fetch VM image file from gfarm, place and modify it. May take several minutes..."
+# debugging echo
 echo "/usr/bin/ssh $vmcontainer $scriptdir/vm-makedisk $uservm $diskpath $vmhostname $vmip $netmask $gateway $vmsize $gfarmvmdir/$vmpath $scriptdir"
 echo "local = $local"
-exit
 if [ $local -eq 0 ];
 then
   /usr/bin/ssh $vmcontainer $scriptdir/vm-makedisk $uservm $diskpath $vmhostname $vmip $netmask $gateway $vmsize $gfarmvmdir/$vmpath $scriptdir

@@ -43,6 +43,7 @@ then
   /bin/rm -f $2;
   exit 3
 fi
+/bin/df
 
 #
 # Modify VM disk image
@@ -52,7 +53,9 @@ fi
 line=$(/bin/grep "default=0" /tmp/$1/boot/grub/grub.conf)
 if [ -n "$line" ];
 then
-  /bin/sed -i 's/default=0/default=1/' /tmp/$1/boot/grub/grub.conf
+  /bin/sed -i 's/default=0/default=1/' /tmp/$1/boot/grub/grub.conf;
+# debugging echo
+  echo "changed to default=1 in grub.conf"
 fi
 
 #
@@ -66,6 +69,8 @@ fi
 /opt/rocks/bin/rocks report host interface $1 | /bin/grep BOOTPROTO | /bin/cat >> /tmp/$1/etc/sysconfig/network-scripts/ifcfg-eth0
 /opt/rocks/bin/rocks report host interface $1 | /bin/grep ONBOOT | /bin/cat >> /tmp/$1/etc/sysconfig/network-scripts/ifcfg-eth0
 /opt/rocks/bin/rocks report host interface $1 | /bin/grep MTU | /bin/cat >> /tmp/$1/etc/sysconfig/network-scripts/ifcfg-eth0
+# debugging echo
+/bin/cat /tmp/$1/etc/sysconfig/network-scripts/ifcfg-eth0
 
 #
 # Get old hostname
@@ -73,7 +78,8 @@ fi
 vminfo=$(/bin/grep "^HOSTNAME" /tmp/$1/etc/sysconfig/network)
 if [ -z "$vminfo" ];
 then
-  echo "Warning: can't find the original hostname in /etc/sysconfig/network"
+  echo "Warning: cannot find the original hostname in /etc/sysconfig/network"
+# This condition need to do more...
 else
   oldhostfull=$(/bin/echo $vminfo | /bin/cut -d'=' -f2);
   oldhostshort=$(/bin/echo $oldhostfull | /bin/cut -d'.' -f1)
@@ -91,28 +97,65 @@ newhostshort=$(/bin/echo $3 | /bin/cut -d'.' -f1)
 /bin/echo "HOSTNAME=$3" >> /tmp/$1/etc/sysconfig/network
 /bin/sed -i 's/GATEWAY/#GATEWAY/' /tmp/$1/etc/sysconfig/network
 /bin/echo "GATEWAY=$6" >> /tmp/$1/etc/sysconfig/network
+# debuggin echo
+/bin/cat /tmp/$1/etc/sysconfig/network
 
 #
 # Modify resolv.conf
 #
 /bin/cp $7/resolv.conf /tmp/$1/etc/resolv.conf
 /bin/chmod 644 /tmp/$1/etc/resolv.conf
+# debuggin echo
+/bin/cat /tmp/$1/etc/resolv.conf
 
 #
 # Add root and user ssh public keys
 #
+if [ -d /tmp/$1/root/.ssh ];
+then
+  mkdir /tmp/$1/root/.ssh
+fi
 /bin/cat /tmp/$1.tmp >> /tmp/$1/root/.ssh/authorized_keys
+# debuggin echo
+/bin/cat /tmp/$1/root/.ssh/authorized_keys
 
 #
 # Modify hosts file
 #
-/bin/sed -i "s/$oldhostfull/$3/g" /tmp/$1/etc/hosts
-/bin/sed -i "s/$oldhostshort/$newhostshort/g" /tmp/$1/etc/hosts
+if [ -n "$oldhostfull" ];
+then
+  for (( ; ; ))
+  do
+    line=$(/bin/grep -v "#" /tmp/$1/etc/hosts | grep $oldhostfull | head -1);
+    if [ -n "$line" ];
+    then
+      /bin/sed -i "s/$line/$4 $3/" /tmp/$1/etc/hosts
+    else
+      break
+    fi
+  done
+fi
+if [ -n "$oldhostshort" ];
+then
+  /bin/sed -i "s/$oldhostshort/$newhostshort/g" /tmp/$1/etc/hosts
+fi
+info=$(/bin/grep -v "#" /tmp/$1/etc/hosts | grep $3)
+if [ -z "$info" ];
+then
+  echo "$4 $3" >> /tmp/$1/etc/hosts
+fi
+# debuggin echo
+/bin/cat /tmp/$1/etc/hosts
 
 #
 # Modify auto.home
 #
-/bin/sed -i "s/$oldhostshort/$newhostshort/g" /tmp/$1/etc/auto.home
+if [ -e /tmp/$1/etc/auto.home ];
+then
+  /bin/sed -i "s/$oldhostshort/$newhostshort/g" /tmp/$1/etc/auto.home;
+# debuggin echo
+  /bin/cat /tmp/$1/etc/auto.home
+fi
 
 #
 # Modify httpd.conf
