@@ -61,7 +61,7 @@ fi
 #
 # Save then replace ifcfg-eth0
 #
-/bin/cp /tmp/$1/etc/sysconfig/network-scripts/ifcfg-eth0 /tmp/$1/etc/sysconfig/network-scripts/ifcfg-eth0.old
+/bin/cp /tmp/$1/etc/sysconfig/network-scripts/ifcfg-eth0 /tmp/$1/etc/sysconfig/network-scripts/old.eth0-ifcfg
 /opt/rocks/bin/rocks report host interface $1 | /bin/grep DEVICE | /bin/cat > /tmp/$1/etc/sysconfig/network-scripts/ifcfg-eth0
 /opt/rocks/bin/rocks report host interface $1 | /bin/grep HWADDR | /bin/cat >> /tmp/$1/etc/sysconfig/network-scripts/ifcfg-eth0
 /opt/rocks/bin/rocks report host interface $1 | /bin/grep IPADDR | /bin/cat >> /tmp/$1/etc/sysconfig/network-scripts/ifcfg-eth0
@@ -116,6 +116,7 @@ then
   mkdir /tmp/$1/root/.ssh
 fi
 /bin/cat /tmp/$1.tmp >> /tmp/$1/root/.ssh/authorized_keys
+/bin/rm -f /tmp/$1.tmp
 # debuggin echo
 /bin/cat /tmp/$1/root/.ssh/authorized_keys
 

@@ -277,10 +277,10 @@ rocks list host vm $uservm >> $log
 # Make user ssh public key available to root on vm-container
 # Copy proxy cert file to vm-container
 #
+/bin/cat $HOME/.ssh/*.pub > /tmp/$uservm.tmp;
 if [ $local -eq 0 ];
 then
-  /bin/cat $HOME/.ssh/*.pub > $HOME/.ssh/$uservm.tmp;
-  /usr/bin/scp $HOME/.ssh/$uservm.tmp $vmcontainer:/tmp;
+  /usr/bin/scp /tmp/$uservm.tmp $vmcontainer:/tmp;
   info=$(/opt/vdt/globus/bin/grid-proxy-info | grep path);
   if [ -z "$info" ];
   then
