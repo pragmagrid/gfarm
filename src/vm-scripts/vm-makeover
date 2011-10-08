@@ -35,7 +35,7 @@ else
 fi
 
 #
-# Mount the disk image in user's home directory
+# Mount the disk image in /tmp directory
 #
 /usr/bin/lomount -diskimage $2 -partition 1 /tmp/$1
 if [ $? -ne 0 ];
@@ -113,10 +113,14 @@ newhostshort=$(/bin/echo $3 | /bin/cut -d'.' -f1)
 #
 if [ -d /tmp/$1/root/.ssh ];
 then
-  mkdir /tmp/$1/root/.ssh
+  mkdir /tmp/$1/root/.ssh;
+  /bin/mv /tmp/$1.tmp /tmp/$1/root/.ssh/authorized_keys;
+  chown root:root /tmp/$1/root/.ssh/authorized_keys;
+  chmod 600 /tmp/$1/root/.ssh/authorized_keys
+else
+  /bin/cat /tmp/$1.tmp >> /tmp/$1/root/.ssh/authorized_keys
+  /bin/rm -f /tmp/$1.tmp
 fi
-/bin/cat /tmp/$1.tmp >> /tmp/$1/root/.ssh/authorized_keys
-/bin/rm -f /tmp/$1.tmp
 # debuggin echo
 /bin/cat /tmp/$1/root/.ssh/authorized_keys
 
@@ -161,7 +165,10 @@ fi
 #
 # Modify httpd.conf
 #
-/bin/sed -i "s/$oldhostfull/$3/g" /tmp/$1/etc/httpd/conf/httpd.conf
+if [ -e /tmp/$1/etc/httpd/conf/httpd.conf ];
+then
+  /bin/sed -i "s/$oldhostfull/$3/g" /tmp/$1/etc/httpd/conf/httpd.conf
+fi
 
 /bin/umount /tmp/$1
 

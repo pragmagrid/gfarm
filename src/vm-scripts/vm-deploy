@@ -312,8 +312,8 @@ else
 fi 
 if [ $? -eq 0 ];
 then
-  sudo $scriptdir/vm-start $uservm;
-  if [ $? = 0 ];
+  info=$(sudo $scriptdir/vm-start $uservm);
+  if [ -z "$info" ];
   then
     echo "Success! New VM $uservm has been started at $(date)";
     echo "$(date): Successful completion of $uservm deployment" >> $log;
