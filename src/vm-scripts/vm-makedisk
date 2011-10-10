@@ -32,7 +32,7 @@ then
   /bin/rm -f /tmp/$1.tmp;
   exit 3
 fi
-space=$(echo $diskinfo | cut -d' ' -f3)
+space=$(echo $diskinfo | cut -d' ' -f4)
 # debugging echo
 echo "Available disk space = $space"
 

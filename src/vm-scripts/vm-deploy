@@ -296,8 +296,13 @@ echo "Check $vmcontainer:/tmp/$uservm.tmp. proxypath = $proxypath"
 #
 # Place VM image file in specified vm-container node
 #
+rocksversion=$(rocks report version)
 info=$(/opt/rocks/bin/rocks list host vm $uservm showdisks=y | tail -1)
+if [ "$rocksversion" == "5.4.3" ]; then
+substr1=$(echo $info | cut -d' ' -f7)
+else
 substr1=$(echo $info | cut -d' ' -f6)
+fi
 substr2=$(echo $substr1 | cut -d':' -f2)
 diskpath=$(echo $substr2 | cut -d',' -f1)
 echo "Fetch VM image file from gfarm, place and modify it. May take several minutes..."
