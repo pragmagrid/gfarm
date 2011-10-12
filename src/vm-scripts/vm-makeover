@@ -113,15 +113,22 @@ newhostshort=$(/bin/echo $3 | /bin/cut -d'.' -f1)
 #
 if [ -d /tmp/$1/root/.ssh ];
 then
-  mkdir /tmp/$1/root/.ssh;
-  /bin/mv /tmp/$1.tmp /tmp/$1/root/.ssh/authorized_keys;
-  chown root:root /tmp/$1/root/.ssh/authorized_keys;
-  chmod 600 /tmp/$1/root/.ssh/authorized_keys
-else
-  /bin/cat /tmp/$1.tmp >> /tmp/$1/root/.ssh/authorized_keys
+  if [ -e /tmp/$1/root/.ssh/authorized_keys ];
+  then
+    /bin/cat /tmp/$1.tmp >> /tmp/$1/root/.ssh/authorized_keys
+  else
+    /bin/cat /tmp/$1.tmp > /tmp/$1/root/.ssh/authorized_keys;
+    /bin/chmod 600 /tmp/$1/root/.ssh/authorized_keys
+  fi
   /bin/rm -f /tmp/$1.tmp
+else
+  mkdir /tmp/$1/root/.ssh;
+  /bin/chmod 755 /tmp/$1/root/.ssh;
+  /bin/mv /tmp/$1.tmp /tmp/$1/root/.ssh/authorized_keys;
+  /bin/chown root:root /tmp/$1/root/.ssh/authorized_keys;
+  /bin/chmod 600 /tmp/$1/root/.ssh/authorized_keys
 fi
-# debuggin echo
+# debugging echo
 /bin/cat /tmp/$1/root/.ssh/authorized_keys
 
 #
