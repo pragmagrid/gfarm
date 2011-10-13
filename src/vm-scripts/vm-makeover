@@ -50,12 +50,18 @@ fi
 #
 # Modify grub file
 #
-line=$(/bin/grep "default=" /tmp/$1/boot/grub/grub.conf)
-if [ -n "$line" ];
-then
-  /bin/sed -i "s/default=.*/default=$8/" /tmp/$1/boot/grub/grub.conf;
-# debugging echo
-  /bin/grep "default=" /tmp/$1/boot/grub/grub.conf
+xenkernel=$(ls /tmp/$1/boot/vmlinuz*xen)
+if [ "x$xenkernel" != "x" ]; then
+	cat > /tmp/$1/tmp/fixup-grub << EOF
+#!/bin/bash
+xenkernel=$(ls /boot/vmlinuz*xen)
+/sbin/grubby --set-default=$xenkernel
+EOF
+	chmod 755 /tmp/$1/tmp/fixup-grub
+	/usr/sbin/chroot /tmp/$1 /tmp/fixup-grub
+else
+	echo "need to copy xen kernel, initrd."
+	exit 3
 fi
 
 #
