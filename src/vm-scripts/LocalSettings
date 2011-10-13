@@ -14,6 +14,11 @@ gfarmvmlist=/vm-images/vmdb.txt
 vmsuffix=.hda
 
 #
+# What type of kernel to boot VM with
+#
+bootk=xen
+
+#
 # network, netmask and gateway settings for new VMs
 #
 nettype=public

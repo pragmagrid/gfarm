@@ -83,6 +83,15 @@ then
 fi
 vmsuffix=$(echo $info | cut -d'=' -f2)
 
+info=$(grep -v "#" $scriptdir/LocalSettings | grep bootk | head -1)
+if [ -z "$info" ];
+then
+  echo "bootk is not defined in $scriptdir/LocalSettings" | tee -a $log;
+  echo "Please report to your system administrator";
+  exit 5
+fi
+bootk=$(echo $info | cut -d'=' -f2)
+
 info=$(grep -v "#" $scriptdir/LocalSettings | grep nettype | head -1)
 if [ -z "$info" ];
 then
@@ -182,10 +191,21 @@ then
 fi
 
 vmname=$(echo $vminfo | cut -d',' -f1)
-vmtype=$(echo $vminfo | cut -d',' -f2)
+vmtypes=$(echo $vminfo | cut -d',' -f2)
 vmpath=$(echo $vminfo | cut -d',' -f3)
+ntype=$(echo $vmtypes | grep -o "-" | wc -l)
+for i in `seq 0 $ntype`;
+do
+  let "index=$i+1";
+  vmtype=$(echo $vmtypes | cut -d'-' -f$index);
+  if [ "$vmtype" = "$bootk" ];
+  then
+    bootorder=$i;
+    break
+  fi
+done
 # debugging echo
-echo "vmip = $vmip, vmhostname = $vmhostname, vmname=$vmname, vmtype = $vmtype, vmpath = $vmpath"
+echo "vmip = $vmip, vmhostname = $vmhostname, vmname=$vmname, bootorder = $bootorder, vmpath = $vmpath"
 
 #
 # Uncomment the line below to do md5sum-check when fetch gfarm file
@@ -307,15 +327,18 @@ substr2=$(echo $substr1 | cut -d':' -f2)
 diskpath=$(echo $substr2 | cut -d',' -f1)
 echo "Fetch VM image file from gfarm, place and modify it. May take several minutes..."
 # debugging echo
-echo "/usr/bin/ssh $vmcontainer $scriptdir/vm-makedisk $uservm $diskpath $vmhostname $vmip $netmask $gateway $vmsize $gfarmvmdir/$vmpath $scriptdir"
+echo "/usr/bin/ssh $vmcontainer $scriptdir/vm-makedisk $uservm $diskpath $vmhostname $vmip $netmask $gateway $vmsize $gfarmvmdir/$vmpath $scriptdir $bootorder"
 echo "local = $local"
 if [ $local -eq 0 ];
 then
-  /usr/bin/ssh $vmcontainer $scriptdir/vm-makedisk $uservm $diskpath $vmhostname $vmip $netmask $gateway $vmsize $gfarmvmdir/$vmpath $scriptdir
+  /usr/bin/ssh $vmcontainer $scriptdir/vm-makedisk $uservm $diskpath $vmhostname $vmip $netmask $gateway $vmsize $gfarmvmdir/$vmpath $scriptdir $bootorder
 else
-  $scriptdir/vm-makedisk $uservm $diskpath $vmhostname $vmip $netmask $gateway $vmsize $gfarmvmdir/$vmpath $scriptdir
+  $scriptdir/vm-makedisk $uservm $diskpath $vmhostname $vmip $netmask $gateway $vmsize $gfarmvmdir/$vmpath $scriptdir $bootorder
 fi 
-if [ $? -eq 0 ];
+mkdisk=$?
+# debugging echo
+echo "makedisk returned $mkdisk"
+if [ $mkdisk -eq 0 ];
 then
   info=$(sudo $scriptdir/vm-start $uservm);
   if [ -z "$info" ];
@@ -324,9 +347,8 @@ then
     echo "$(date): Successful completion of $uservm deployment" >> $log;
     exit 0
   fi
-  echo "Failed to start VM $uservm"
-else
-  mkdisk=$?
+  echo "vm-start returned $info";
+  echo "Failed to start VM $uservm";
 fi
 
 #

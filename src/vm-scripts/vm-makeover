@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# vm-makeover <uservm> <vm-image-full-path> <vm-hostname> <vm-ip> <netmask> <gateway> <scriptdir>
+# vm-makeover <uservm> <vm-image-full-path> <vm-hostname> <vm-ip> <netmask> <gateway> <scriptdir> <bootorder>
 #
 # Modify VM image file.
 #
@@ -9,7 +9,7 @@
 # V2.0 - 10/4/11, Cindy Zheng, zhengc@sdsc.edu
 # 
 
-if [ $# -ne 7 ];
+if [ $# -ne 8 ];
 then
   /bin/rm -f $1;
   exit 1
@@ -50,12 +50,12 @@ fi
 #
 # Modify grub file
 #
-line=$(/bin/grep "default=0" /tmp/$1/boot/grub/grub.conf)
+line=$(/bin/grep "default=" /tmp/$1/boot/grub/grub.conf)
 if [ -n "$line" ];
 then
-  /bin/sed -i 's/default=0/default=1/' /tmp/$1/boot/grub/grub.conf;
+  /bin/sed -i "s/default=.*/default=$8/" /tmp/$1/boot/grub/grub.conf;
 # debugging echo
-  echo "changed to default=1 in grub.conf"
+  /bin/grep "default=" /tmp/$1/boot/grub/grub.conf
 fi
 
 #
