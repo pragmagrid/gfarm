@@ -54,6 +54,9 @@
 # @Copyright@
 #
 # $Log$
+# Revision 1.4  2011/10/19 07:02:43  phil
+# Don't lose the makeec2.sh script
+#
 # Revision 1.3  2011/10/07 19:11:07  phil
 # Update to put scripts in correct location
 #
@@ -68,7 +71,7 @@
 #
 
 REDHAT.ROOT = $(CURDIR)/../../
-SCRIPTS = AvailableIP LocalSettings resolv.conf vm-cleanup vm-deploy vm-makedisk vm-makeover vm-new vm-start
+SCRIPTS = AvailableIP LocalSettings resolv.conf vm-cleanup vm-deploy vm-makedisk vm-makeover vm-new vm-start makeec2.sh
 
 -include $(ROCKSROOT)/etc/Rules.mk
 include Rules.mk
