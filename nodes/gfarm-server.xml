@@ -16,6 +16,9 @@
 
 	<changelog>
 	$Log$
+	Revision 1.24  2011/10/27 18:40:22  zhengc
+	Fixed inconsistence in post-50-gfarm(.sh) filename
+	
 	Revision 1.23  2011/10/07 19:12:20  phil
 	Slight graph re-arrangement.  Add a common file to reduce code redundancy.
 	
@@ -48,7 +51,7 @@
 /usr/sbin/useradd -c "Gfarm Admin" -u 424 gfarm
 
 
-<file name="/etc/rc.d/rocksconfig.d/post-50-gfarm.sh" perms="744">
+<file name="/etc/rc.d/rocksconfig.d/post-50-gfarm" perms="744">
 #!/bin/sh
 
 source /opt/vdt/setup.sh
