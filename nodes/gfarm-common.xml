@@ -15,6 +15,9 @@
 
 	<changelog>
 	$Log$
+	Revision 1.2  2011/10/27 20:13:52  zhengc
+	Fixed a bug.
+	
 	Revision 1.1  2011/10/07 19:12:20  phil
 	Slight graph re-arrangement.  Add a common file to reduce code redundancy.
 	
@@ -54,7 +57,7 @@ cp /opt/vdt/setup.sh /etc/profile.d/globus.sh
 <file name="/etc/rc.d/rocksconfig.d/post-51-gfarm-certificates" perms="744">
 #!/bin/sh
 cd /
-/bin/tar xf /etc/grid-security/certs.tar >> /var/tmp/cron.out
+/bin/tar xf /etc/grid-security/certs.tar
 rm /etc/rc.d/rocksconfig.d/post-51-gfarm-certificates
 </file>
 
