@@ -16,6 +16,10 @@
 
 	<changelog>
 	$Log$
+	Revision 1.25  2011/11/02 22:41:56  zhengc
+	Removed common cron entrie, restored seperate cron entries for server and client. This is based on frontend with public network interface and vm-containers/compute-nodes may only have private network interface. VDT on frontend setup cron jobs to auto-update certificates and CRLs from external source. vm-containers/compute-nodes is setup to synchronize with frontend.
+	Also, minor cleanup to AvailableIP file.
+	
 	Revision 1.24  2011/10/27 18:40:22  zhengc
 	Fixed inconsistence in post-50-gfarm(.sh) filename
 	
@@ -62,6 +66,10 @@ mkdir -p /etc/grid-security
 vdt-control --on
 vdt-update-certs --force
 
+crontab -l > /var/tmp/cron.out 
+echo "00 01 * * * /bin/tar -chf /etc/grid-security/certs.tar /etc/grid-security/certificates" >> /var/tmp/cron.out 
+crontab /var/tmp/cron.out 
+rm /var/tmp/cron.out
 /bin/tar -chf /etc/grid-security/certs.tar /etc/grid-security/certificates
 echo "FILES += /etc/grid-security/certs.tar /opt/gfarm/etc/gfarm2.conf" >> /var/411/Files.mk
 
