@@ -317,7 +317,7 @@ echo "Check $vmcontainer:/tmp/$uservm.tmp. proxypath = $proxypath"
 # Place VM image file in specified vm-container node
 #
 rocksversion=$(rocks report version)
-info=$(/opt/rocks/bin/rocks list host vm $uservm showdisks=y | tail -1)
+info=$(/opt/rocks/bin/rocks list host vm $uservm showdisks=y | grep $uservm)
 if [ "$rocksversion" == "5.4.3" ]; then
 substr1=$(echo $info | cut -d' ' -f7)
 else

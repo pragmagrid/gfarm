@@ -29,7 +29,7 @@ gateway=198.202.88.20
 # Reminder of other local settings need to be done on all your installations:
 # (Best to finish settings before copy the directory to other local systems)
 #
-# 1. Set the "scriptdir" in vm-deploy to the scripts installation path
+# 1. Set the "scriptdir" in vm-deploy and vm-remove to the scripts installation path
 # 2. Add all IP# allocated for vm-deploy script to the AvailableIP file
 # 3. Adjust resolv.conf for your VM
 # 4. Create vmdisks group and give it rwx access to VM disk image 
@@ -39,5 +39,5 @@ gateway=198.202.88.20
 #    $ ls -ld /state/partition1/xen/disks
 #    drwxrwx--- 2 root vmdisks 4096 Oct  5 00:05 /state/partition1/xen/disks
 # 5. Add the following line in /etc/sudoers on all vm-containers
-#    %vmdisks NOPASSWD:/opt/vm-scripts/vm-new, /opt/vm-scripts/vm-makeover, /opt/vm-scripts/vm-start, /opt/vm-scripts/vm-cleanup
+#    %vmdisks NOPASSWD:/opt/vm-scripts/vm-new, /opt/vm-scripts/vm-makeover, /opt/vm-scripts/vm-start, /opt/vm-scripts/vm-cleanup, /opt/vm-scripts/vm-free
 #
