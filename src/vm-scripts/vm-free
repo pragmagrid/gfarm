@@ -38,10 +38,10 @@ diskpath=$(echo $substr2 | cut -d',' -f1)
 # Remove the new VM
 #
 /opt/rocks/bin/rocks stop host vm $1
-if [ $? -ne 0 ];
-then
-  exit 2
-fi
+#if [ $? -ne 0 ];
+#then
+#  exit 2
+#fi
 /opt/rocks/bin/rocks remove host $1
 if [ $? -ne 0 ];
 then
