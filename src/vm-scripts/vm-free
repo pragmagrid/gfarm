@@ -22,11 +22,13 @@ ip=$(echo $info | cut -d' ' -f4)
 # Find the VM disk file path
 # 
 rocksversion=$(/opt/rocks/bin/rocks report version)
-info=$(/opt/rocks/bin/rocks list host vm $1 showdisks=y | grep $1)
+info=$(/opt/rocks/bin/rocks list host vm $1 showdisks=y status=yes | grep $1)
 if [ "$rocksversion" == "5.4.3" ]; then
-substr1=$(echo $info | cut -d' ' -f7)
+status=$(echo $info | cut -d' ' -f7);
+substr1=$(echo $info | cut -d' ' -f8)
 else
-substr1=$(echo $info | cut -d' ' -f6)
+status=$(echo $info | cut -d' ' -f6);
+substr1=$(echo $info | cut -d' ' -f7)
 fi
 substr2=$(echo $substr1 | cut -d':' -f2)
 diskpath=$(echo $substr2 | cut -d',' -f1)
@@ -37,11 +39,14 @@ diskpath=$(echo $substr2 | cut -d',' -f1)
 #
 # Remove the new VM
 #
-/opt/rocks/bin/rocks stop host vm $1
-#if [ $? -ne 0 ];
-#then
-#  exit 2
-#fi
+if [ "$status" = "active" ];
+then
+  /opt/rocks/bin/rocks stop host vm $1;
+  if [ $? -ne 0 ];
+  then
+    exit 2
+  fi
+fi
 /opt/rocks/bin/rocks remove host $1
 if [ $? -ne 0 ];
 then
