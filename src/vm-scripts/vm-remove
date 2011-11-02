@@ -1,0 +1,74 @@
+#!/bin/bash
+#
+# vm-remove <uservm>
+#
+# Remove a VM which was created with vm-deploy script
+# It should be only run under normal user account
+# Although it does permit root to remove any VM
+#
+# V2.0 - 10/4/11, Cindy Zheng, zhengc@sdsc.edu
+#
+
+scriptdir=/opt/vm-scripts
+
+if [ $# != 1 ];
+then
+  echo "Please specify the name of VM to be removed";
+  echo "Usage: vm-remove vm-name"
+  exit 1
+fi
+
+#
+# Is the VM exist
+#
+uservmcolon=$1":"
+info=$(rocks list host vm | grep $uservmcolon)
+if [ -z "$info" ];
+then
+  echo "VM $1 does not exist"
+  exit 2
+fi
+
+#
+# If the user own the VM, remove VM and free the resources
+#
+username=$(whoami)
+if [ "$username" != "root" ];
+then
+  vmuser=$(echo "$1" | cut -d'-' -f2);
+  if [ "$vmuser" != "$username" ];
+  then
+    echo "Permission denied: Only root or user $vmuser can remove $1";
+    exit 3
+  fi
+  echo "sudo $scriptdir/vm-free $1 $scriptdir/AvailableIP";
+  sudo $scriptdir/vm-free $1 $scriptdir/AvailableIP
+else
+echo "$scriptdir/vm-free $1 $scriptdir/AvailableIP";
+$scriptdir/vm-free $1 $scriptdir/AvailableIP
+fi
+if [ $? -eq 0 ];
+then
+  echo "$1 has been successfully removed and resources freed"
+  exit 0
+fi
+if [ $? -eq 1 ];
+then
+  echo "Internal error: number of arguments mismatch when vm-remove ran vm-free"
+  exit 4
+fi
+if [ $? -eq 2 ];
+then
+  echo "vm-free: Failed to stop $1"
+  echo "Please report the the system administrators"
+  exit 5
+fi
+if [ $? -eq 3 ];
+then
+  echo "vm-free: Failed to remove $1"
+  echo "Please report the the system administrators"
+  exit 5
+fi
+echo "vm-free: Failed to remove $1 disk image file"
+echo "Please manually remove the disk image file or report to your system administrator"
+exit 6

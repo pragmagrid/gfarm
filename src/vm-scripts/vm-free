@@ -1,0 +1,86 @@
+#!/bin/bash
+#
+# vm-free <uservm> <AvailableIP-file-path>
+#
+# It should be only sudo-run by vm-remove
+#
+# V2.0 - 10/4/11, Cindy Zheng, zhengc@sdsc.edu
+#
+
+if [ $# != 2 ];
+then
+  exit 1
+fi
+
+#
+# Find the VM's IP address
+#
+info=$(/opt/rocks/bin/rocks list host interface $1 | grep $1)
+ip=$(echo $info | cut -d' ' -f4)
+
+#
+# Find the VM disk file path
+# 
+rocksversion=$(/opt/rocks/bin/rocks report version)
+info=$(/opt/rocks/bin/rocks list host vm $1 showdisks=y | grep $1)
+if [ "$rocksversion" == "5.4.3" ]; then
+substr1=$(echo $info | cut -d' ' -f7)
+else
+substr1=$(echo $info | cut -d' ' -f6)
+fi
+substr2=$(echo $substr1 | cut -d':' -f2)
+diskpath=$(echo $substr2 | cut -d',' -f1)
+
+# debugging echo
+# echo "ip=$ip, diskpath=$diskpath"
+
+#
+# Remove the new VM
+#
+/opt/rocks/bin/rocks stop host vm $1
+if [ $? -ne 0 ];
+then
+  exit 2
+fi
+/opt/rocks/bin/rocks remove host $1
+if [ $? -ne 0 ];
+then
+  exit 3
+fi
+
+#
+# Uncomment the ip# used in Availableip
+#
+sed -i "s/#$ip/$ip/" $2
+
+#
+# Is the VM on frontend or on vm-container?
+# Then remove the VM disk image file
+#
+vmcontainer=$(echo $info | cut  -d' ' -f5)
+substr1=$(echo $vmcontainer | cut -d'-' -f1)
+substr2=$(echo $vmcontainer | cut -d'-' -f2)
+
+# debugging echo
+# echo "vmcontainer=$vmcontainer, substr1=$substr1, substr2=$substr2"
+
+if [ "$substr1" = "vm" ];
+then
+  if [ "$substr2" = "container" ];
+  then
+    /usr/bin/ssh $vmcontainer "/bin/rm -f $diskpath";
+    if [ $? -eq 0 ];
+    then
+      exit 0
+    else
+      exit $?+3 
+    fi
+  fi
+fi
+/bin/rm -f $diskpath
+if [ $? -eq 0 ];
+then
+  exit 0
+else
+  exit $?+3 
+fi

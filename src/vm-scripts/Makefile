@@ -54,6 +54,9 @@
 # @Copyright@
 #
 # $Log$
+# Revision 1.5  2011/11/02 07:14:07  zhengc
+# Add scripts to remove vm-deploy'ed VM and free resources
+#
 # Revision 1.4  2011/10/19 07:02:43  phil
 # Don't lose the makeec2.sh script
 #
@@ -71,7 +74,7 @@
 #
 
 REDHAT.ROOT = $(CURDIR)/../../
-SCRIPTS = AvailableIP LocalSettings resolv.conf vm-cleanup vm-deploy vm-makedisk vm-makeover vm-new vm-start makeec2.sh
+SCRIPTS = AvailableIP LocalSettings resolv.conf vm-cleanup vm-deploy vm-makedisk vm-makeover vm-new vm-start makeec2.sh vm-remove vm-free
 
 -include $(ROCKSROOT)/etc/Rules.mk
 include Rules.mk
