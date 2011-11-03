@@ -15,6 +15,10 @@
 
 	<changelog>
 	$Log$
+	Revision 1.4  2011/11/03 21:47:38  zhengc
+	Extract certs.tar file should only be done on vm-containers and compute nodes.
+	The post-51-gfarm-certificates file may not be effective, since the certs.tar file will only exist after 411 sync it from frontend. But it's harmless to do.
+	
 	Revision 1.3  2011/11/02 22:41:56  zhengc
 	Removed common cron entrie, restored seperate cron entries for server and client. This is based on frontend with public network interface and vm-containers/compute-nodes may only have private network interface. VDT on frontend setup cron jobs to auto-update certificates and CRLs from external source. vm-containers/compute-nodes is setup to synchronize with frontend.
 	Also, minor cleanup to AvailableIP file.
@@ -57,13 +61,6 @@ export PATH="/opt/gfarm/bin:/opt/gfarm2fs/bin:$PATH"
 </file>
 
 cp /opt/vdt/setup.sh /etc/profile.d/globus.sh
-
-<file name="/etc/rc.d/rocksconfig.d/post-51-gfarm-certificates" perms="744">
-#!/bin/sh
-cd /
-/bin/tar xf /etc/grid-security/certs.tar
-rm /etc/rc.d/rocksconfig.d/post-51-gfarm-certificates
-</file>
 
 /bin/chmod o+rx /bin/fusermount
 
