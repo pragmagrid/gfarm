@@ -140,7 +140,7 @@ echo "uservm = $uservm"
 # Check vm-name
 #
 uservmcolon=$uservm":"
-vminfo=$(rocks list host vm | grep "$uservmcolon")
+vminfo=$(/opt/rocks/bin/rocks list host | grep "$uservmcolon")
 if [ -n "$vminfo" ];
 then
   echo "$uservm already exist" | tee -a $log;
@@ -290,7 +290,7 @@ then
   exit 17
 fi
 echo "VM $uservm has been created" >> $log
-rocks list host vm $uservm >> $log
+/opt/rocks/bin/rocks list host | grep $uservm >> $log
 
 #
 # When deploy a VM to a vm-container:
@@ -316,7 +316,7 @@ echo "Check $vmcontainer:/tmp/$uservm.tmp. proxypath = $proxypath"
 #
 # Place VM image file in specified vm-container node
 #
-rocksversion=$(rocks report version)
+rocksversion=$(/opt/rocks/bin/rocks report version)
 info=$(/opt/rocks/bin/rocks list host vm $uservm showdisks=y | grep $uservm)
 if [ "$rocksversion" == "5.4.3" ]; then
 substr1=$(echo $info | cut -d' ' -f7)

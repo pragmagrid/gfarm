@@ -22,7 +22,7 @@ fi
 # Is the VM exist
 #
 uservmcolon=$1":"
-info=$(rocks list host vm | grep $uservmcolon)
+info=$(/opt/rocks/bin/rocks list host | grep $uservmcolon)
 if [ -z "$info" ];
 then
   echo "VM $1 does not exist"
