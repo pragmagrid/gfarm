@@ -16,12 +16,15 @@
 
 	<changelog>
 	$Log$
+	Revision 1.26  2012/01/04 20:47:08  zhengc
+	Adjusted divisions among common, server and client xml files. Tested on Rocks 5.4 system.
+	
 	Revision 1.25  2011/11/02 22:41:56  zhengc
 	Removed common cron entrie, restored seperate cron entries for server and client. This is based on frontend with public network interface and vm-containers/compute-nodes may only have private network interface. VDT on frontend setup cron jobs to auto-update certificates and CRLs from external source. vm-containers/compute-nodes is setup to synchronize with frontend.
 	Also, minor cleanup to AvailableIP file.
 	
 	Revision 1.24  2011/10/27 18:40:22  zhengc
-	Fixed inconsistence in post-50-gfarm(.sh) filename
+	Fixed inconsistence in post-51-gfarm(.sh) filename
 	
 	Revision 1.23  2011/10/07 19:12:20  phil
 	Slight graph re-arrangement.  Add a common file to reduce code redundancy.
@@ -55,54 +58,55 @@
 /usr/sbin/useradd -c "Gfarm Admin" -u 424 gfarm
 
 
-<file name="/etc/rc.d/rocksconfig.d/post-50-gfarm" perms="744">
+<file name="/etc/rc.d/rocksconfig.d/post-51-gfarm-server" perms="744">
 #!/bin/sh
 
-source /opt/vdt/setup.sh
-cp /opt/vdt/setup.sh /etc/profile.d/globus.sh
-export PATH="/opt/gfarm/bin:$PATH"
-
-mkdir -p /etc/grid-security
-vdt-control --on
-vdt-update-certs --force
-
-crontab -l > /var/tmp/cron.out 
-echo "00 01 * * * /bin/tar -chf /etc/grid-security/certs.tar /etc/grid-security/certificates" >> /var/tmp/cron.out 
-crontab /var/tmp/cron.out 
-rm /var/tmp/cron.out
-/bin/tar -chf /etc/grid-security/certs.tar /etc/grid-security/certificates
-echo "FILES += /etc/grid-security/certs.tar /opt/gfarm/etc/gfarm2.conf" >> /var/411/Files.mk
-
-rocks sync users
+/bin/rpm -i /export/rocks/install/rocks-dist/x86_64/RedHat/RPMS/libxslt-1.1.17-2.el5_2.2.i386.rpm
 
 /opt/rocks/bin/rocks add firewall global=global action=ACCEPT chain=INPUT protocol=udp service=600 network=all rulename=A100-GFARM-UDP-600
 /opt/rocks/bin/rocks add firewall global=global action=ACCEPT chain=INPUT protocol=tcp service=600 network=all rulename=A100-GFARM-TCP-600
 /opt/rocks/bin/rocks add firewall global=global action=ACCEPT chain=INPUT protocol=tcp service=601 network=all rulename=A100-GFARM-TCP-601
+/opt/rocks/bin/rocks sync host firewall `hostname`
+/sbin/service iptables restart
 
-config-gfarm -A gfarm -a gsi -X
+/opt/vdt/vdt/sbin/vdt-control --on
+/opt/vdt/vdt/sbin/vdt-update-certs --force
 
-mv /opt/gfarm/etc/gfarm2.conf /opt/gfarm/etc/gfarm2.conf.bak
-sed 's/gsi/sharedsecret *\nauth enable gsi_auth/' /opt/gfarm/etc/gfarm2.conf.bak > /opt/gfarm/etc/gfarm2.conf
-mv /opt/gfarm/etc/gfmd.conf /opt/gfarm/etc/gfmd.conf.bak
-sed 's/gsi/sharedsecret *\nauth enable gsi_auth/' /opt/gfarm/etc/gfmd.conf.bak > /opt/gfarm/etc/gfmd.conf
+/usr/bin/crontab -l > /var/tmp/cron.out 
+/bin/echo "00 01 * * * /bin/tar -chf /etc/grid-security/certs.tar /etc/grid-security/certificates" >> /var/tmp/cron.out
+/usr/bin/crontab /var/tmp/cron.out
+/bin/rm -f /var/tmp/cron.out
+/bin/tar -chf /etc/grid-security/certs.tar /etc/grid-security/certificates
+
+/opt/gfarm/bin/config-gfarm -A gfarm -a gsi -X
+
 /etc/init.d/gfarm-pgsql stop
 /etc/init.d/gfmd stop
+/bin/mv /opt/gfarm/etc/gfarm2.conf /opt/gfarm/etc/gfarm2.conf.bak
+/bin/sed 's/gsi/sharedsecret *\nauth enable gsi_auth/' /opt/gfarm/etc/gfarm2.conf.bak > /opt/gfarm/etc/gfarm2.conf
+/bin/mv /opt/gfarm/etc/gfmd.conf /opt/gfarm/etc/gfmd.conf.bak
+/bin/sed 's/gsi/sharedsecret *\nauth enable gsi_auth/' /opt/gfarm/etc/gfmd.conf.bak > /opt/gfarm/etc/gfmd.conf
 /etc/init.d/gfarm-pgsql start
 /etc/init.d/gfmd start
 
-sudo -u _gfarmfs gfkey -f -p 63072000
-sudo -u gfarm gfkey -f -p 63072000
-config-gfsd /state/partition1/gfarm
-sudo -u gfarm \
+/usr/bin/sudo -u _gfarmfs gfkey -f -p 63072000
+/usr/bin/sudo -u gfarm gfkey -f -p 63072000
+/opt/gfarm/bin/config-gfsd /state/partition1/gfarm
+/usr/bin/sudo -u gfarm \
 	/opt/gfarm/bin/gfhost -c -a x86_64-rocks5.4-linux -p 600 -n 1 `hostname`
-sudo -u gfarm gfgroup -m gfarmroot gfarm
+/usr/bin/sudo -u gfarm gfgroup -m gfarmroot gfarm
 
+/etc/init.d/gfsd stop
 /etc/init.d/gfmd stop
 /etc/init.d/gfarm-pgsql stop
 /sbin/chkconfig gfarm-pgsql off
 /sbin/chkconfig gfmd off
+/sbin/chkconfig gfsd off
 
-rm /etc/rc.d/rocksconfig.d/post-50-gfarm
+/bin/echo "FILES += /etc/grid-security/certs.tar /opt/gfarm/etc/gfarm2.conf"
+
+/opt/rocks/bin/rocks sync users
+/bin/rm -f /etc/rc.d/rocksconfig.d/post-51-gfarm-server
 </file>
 </post>
 

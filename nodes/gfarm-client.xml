@@ -15,6 +15,9 @@
 
 	<changelog>
 	$Log$
+	Revision 1.11  2012/01/04 20:47:08  zhengc
+	Adjusted divisions among common, server and client xml files. Tested on Rocks 5.4 system.
+	
 	Revision 1.10  2011/11/03 21:47:38  zhengc
 	Extract certs.tar file should only be done on vm-containers and compute nodes.
 	The post-51-gfarm-certificates file may not be effective, since the certs.tar file will only exist after 411 sync it from frontend. But it's harmless to do.
@@ -37,18 +40,23 @@
 	
 	</changelog>
 <post>
-
-mkdir /etc/grid-security 
-crontab -l > /var/tmp/cron.out 
-echo "00 02 * * * cd /; /bin/tar xf /etc/grid-security/certs.tar" >> /var/tmp/cron.out 
-crontab /var/tmp/cron.out 
-rm /var/tmp/cron.out
-
-<file name="/etc/rc.d/rocksconfig.d/post-51-gfarm-certificates" perms="744">
+ 
+<file name="/etc/rc.d/rocksconfig.d/post-51-gfarm-client" perms="744">
 #!/bin/sh
+
+/usr/bin/crontab -l > /var/tmp/cron.out 
+/bin/echo "00 02 * * * cd /; /bin/tar xf /etc/grid-security/certs.tar" >> /var/tmp/cron.out 
+/usr/bin/crontab /var/tmp/cron.out
+/bin/rm -f /var/tmp/cron.out
 cd /
 /bin/tar xf /etc/grid-security/certs.tar
-rm /etc/rc.d/rocksconfig.d/post-51-gfarm-certificates
+
+/opt/rocks/bin/rocks add firewall global=global action=ACCEPT chain=INPUT protocol=udp service=600 network=all rulename=A100-GFARM-UDP-600
+/opt/rocks/bin/rocks add firewall global=global action=ACCEPT chain=INPUT protocol=tcp service=600 network=all rulename=A100-GFARM-TCP-600
+/opt/rocks/bin/rocks sync host firewall `hostname`
+/sbin/service iptables restart
+
+/bin/rm /etc/rc.d/rocksconfig.d/post-51-gfarm-client
 </file>
 
 </post>

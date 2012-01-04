@@ -15,6 +15,9 @@
 
 	<changelog>
 	$Log$
+	Revision 1.5  2012/01/04 20:47:08  zhengc
+	Adjusted divisions among common, server and client xml files. Tested on Rocks 5.4 system.
+	
 	Revision 1.4  2011/11/03 21:47:38  zhengc
 	Extract certs.tar file should only be done on vm-containers and compute nodes.
 	The post-51-gfarm-certificates file may not be effective, since the certs.tar file will only exist after 411 sync it from frontend. But it's harmless to do.
@@ -56,13 +59,15 @@
 	<package>libxslt.i386</package>
 <post>
 
+/bin/chmod o+rx /bin/fusermount
+
+/bin/mkdir -p /etc/grid-security
+
+/bin/cp /opt/vdt/setup.sh /etc/profile.d/globus.sh
 <file name="/etc/profile.d/gfarm.sh" perms="644">
 export PATH="/opt/gfarm/bin:/opt/gfarm2fs/bin:$PATH"
 </file>
 
-cp /opt/vdt/setup.sh /etc/profile.d/globus.sh
-
-/bin/chmod o+rx /bin/fusermount
 
 </post>
 
