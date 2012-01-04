@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# vm-makedisk <vm-name> <vm-image-full-path> <vm-hostname> <vm-ip> <netmask> <gateway> <vmsize> <vm-gfarm-path> <scriptdir> <bootorder>
+# vm-makedisk <vm-name> <vm-image-full-path> <vm-hostname> <vm-ip> <netmask> <gateway> <vmsize> <vm-home-path> <scriptdir> <bootorder> <userkeyfile>
 #
 # Place then modify VM image file.
 #
@@ -9,7 +9,7 @@
 # V2.0 - 10/4/11, Cindy Zheng, zhengc@sdsc.edu
 # 
 
-if [ $# != 10 ];
+if [ $# != 11 ];
 then
   exit 1
 fi
@@ -29,7 +29,6 @@ fi
 diskinfo=$(df $2 | tail -1)
 if [ -z "$diskinfo" ];
 then
-  /bin/rm -f /tmp/$1.tmp;
   exit 3
 fi
 space=$(echo $diskinfo | cut -d' ' -f4)
@@ -42,37 +41,24 @@ echo "Available disk space = $space"
 if [ $7 -gt $space ];
 then
 # debugging echo
-echo "Need $7 KB and only $space KB available";
-  /bin/rm -f /tmp/$1.tmp;
+  echo "Need $7 KB and only $space KB available";
   exit 4
 fi
 
 #
-# Check user gfarm access
+# Copy VM image from user home directory
 #
-gfls > /dev/null 2>&1
-if [ $? -ne 0 ];
-then
-  /bin/rm -f /tmp/$1.tmp;
-  exit 5
-fi
-
-#
-# Get VM image from gfarm
-#
-echo "Fetching VM image $8... May take several minutes"
-gfexport $8 | gunzip > $2
+echo "Copying VM image $8... May take a few minutes"
+cp $8 $2
 
 # debugging echo
-echo "sudo $9/vm-makeover $1 $2 $3 $4 $5 $6 $9 ${10}"
-sudo $9/vm-makeover $1 $2 $3 $4 $5 $6 $9 ${10}
+echo "sudo $9/vm-makeover $1 $2 $3 $4 $5 $6 $9 ${10} ${11}"
+sudo $9/vm-makeover $1 $2 $3 $4 $5 $6 $9 ${10} ${11}
 if [ $? -eq 0 ];
 then
-  /bin/rm -f /tmp/$1.tmp;
   exit 0
 fi
-result = $? + 5
-/bin/rm -f /tmp/$1.tmp;
+result=$?+4
 # debugging echo
 echo "vm-makeover returned $result"
 exit $result

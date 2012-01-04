@@ -1,0 +1,7 @@
+#
+# List of frontend and vm-containers for VM deployment
+# Each node listed here must have a public network interface
+# This file must NOT have an empty lines
+#
+fiji.rocksclusters.org
+vm-container-1-0

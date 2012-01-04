@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# vm-makeover <uservm> <vm-image-full-path> <vm-hostname> <vm-ip> <netmask> <gateway> <scriptdir> <bootorder>
+# vm-makeover <uservm> <vm-image-full-path> <vm-hostname> <vm-ip> <netmask> <gateway> <scriptdir> <bootorder> <userkeyfile>
 #
 # Modify VM image file.
 #
@@ -9,9 +9,8 @@
 # V2.0 - 10/4/11, Cindy Zheng, zhengc@sdsc.edu
 # 
 
-if [ $# -ne 8 ];
+if [ $# -ne 9 ];
 then
-  /bin/rm -f $1;
   exit 1
 fi
 
@@ -26,7 +25,6 @@ then
     /bin/umount /tmp/$1;
     if [ $? -ne 0 ];
     then
-      /bin/rm -f $2;
       exit 2
     fi
   fi
@@ -40,7 +38,6 @@ fi
 /usr/bin/lomount -diskimage $2 -partition 1 /tmp/$1
 if [ $? -ne 0 ];
 then
-  /bin/rm -f $2;
   exit 3
 fi
 /bin/df
@@ -61,7 +58,7 @@ EOF
 	/usr/sbin/chroot /tmp/$1 /tmp/fixup-grub
 else
 	echo "need to copy xen kernel, initrd."
-	exit 3
+	exit 4
 fi
 
 #
@@ -121,16 +118,16 @@ if [ -d /tmp/$1/root/.ssh ];
 then
   if [ -e /tmp/$1/root/.ssh/authorized_keys ];
   then
-    /bin/cat /tmp/$1.tmp >> /tmp/$1/root/.ssh/authorized_keys
+    /bin/cat $9 >> /tmp/$1/root/.ssh/authorized_keys
   else
-    /bin/cat /tmp/$1.tmp > /tmp/$1/root/.ssh/authorized_keys;
+    /bin/cat $9 > /tmp/$1/root/.ssh/authorized_keys;
+    /bin/chown root:root /tmp/$1/root/.ssh/authorized_keys;
     /bin/chmod 600 /tmp/$1/root/.ssh/authorized_keys
   fi
-  /bin/rm -f /tmp/$1.tmp
 else
   mkdir /tmp/$1/root/.ssh;
   /bin/chmod 755 /tmp/$1/root/.ssh;
-  /bin/mv /tmp/$1.tmp /tmp/$1/root/.ssh/authorized_keys;
+  /bin/cat $9 > /tmp/$1/root/.ssh/authorized_keys;
   /bin/chown root:root /tmp/$1/root/.ssh/authorized_keys;
   /bin/chmod 600 /tmp/$1/root/.ssh/authorized_keys
 fi

@@ -1,29 +1,51 @@
 #!/bin/bash
 #
-# vm-cleanup <uservm> <vmip> <availableip>
+# vm-cleanup <action-code> other-required-info...
+#     action-code: 1 - remove user tmp ssh key file and vm image file in user home directory
+#                  2 - remove new vm and release ip# (require sudo)
+#     vm-cleanup 1 <keyfile> <vmhomepath>
+#     vm-cleanup 2 <uservm> <vmip> <availableip> 
+# It should be run by vm-deploy, and only clean up files on the frontend.
 #
-# It should be only sudo-run by vm-deploy
-#
-# V2.0 - 10/4/11, Cindy Zheng, zhengc@sdsc.edu
+# V2.0 - 12/6/11, Cindy Zheng, zhengc@sdsc.edu
 #
 
-if [ $# != 3 ];
+if [ $# -lt 3 ];
 then
-  exit 4
+  exit 2
 fi
 
 #
-# Remove the new VM
+# Remove user tmp ssh key file and vm image file in user home directory
 #
-/opt/rocks/bin/rocks remove host $1
-if [ $? -ne 0 ];
+if [ $1 -eq 1 ];
 then
-  exit 1
+  if [ $# != 3 ];
+  then
+    exit 3
+  fi
+  /bin/rm -f $2 $3;
+  exit 0
 fi
 
 #
-# Unmark the ip# used in Availableip
+# Remove the new VM and unmark the ip# used in AvailableIP
 #
-sed -i "s/#$2/$2/" $3
+if [ $1 -eq 2 ];
+then
+  if [ $# != 4 ];
+  then
+    exit 4
+  fi
+  /opt/rocks/bin/rocks remove host $2;
+  if [ $? -ne 0 ];
+  then
+    echo "Failed to remove $2 and free $3";
+    echo "Please inform your system administrator and cleanup manually";
+    exit 1
+  fi
+  sed -i "s/#$3/$3/" $4;
+  exit 0
+fi
 
-exit 0
+exit 5

@@ -1,57 +1,49 @@
 #!/bin/bash
 #
-# vm-deploy - Deploy a single-node VM use a VM disk image file in Gfarm
+# vm-deploy - Deploy VMs use a VM disk image file in Gfarm
+# Each vm-container can only run one instance of a VM image for one user
+# Assumes shared user home directories on all nodes
 # 
-# V1.0 - 9/17/11, Cindy Zheng, zhengc@sdsc.edu
+# V2.0 - 12/5/11, Cindy Zheng, zhengc@sdsc.edu
 #
 
 #
-# Local admin need to adjust the installation directory
-# -----------------------------------------------------
+# Local admin need to adjust scripts installation directory
+# ---------------------------------------------------------
 scriptdir="/opt/vm-scripts"
 
 #
 # This script should be run in an user account
 # 
-# $ vm-deploy <vm-image-name> <vm-container-name>
+# $ vm-deploy <vm-image-name> <number of instances>
 #
 if [ -z $1 ] || [ $# -gt 2 ];
 then
-  echo "Usage: vm-deploy <vm-image-name> <vm-container-name>";
+  echo "Usage: vm-deploy <vm-image-name> <number of instances>";
   exit 1
 fi
 if [ $# -eq 1 ];
 then
-  local=1;
-  vmcontainer=$(hostname)
+  instances=1
 else
-  if [ "$2" != $(hostname) ];
-  then
-    info=$(/opt/rocks/bin/rocks list host | grep vm-container | grep $2);
-    if [ -z "$info" ];
-    then
-      echo "No such container $2 exist";
-      exit 1
-    fi
-    local=0;
-    vmcontainer=$2
-  else
-    local=1;
-    vmcontainer=$2
-  fi
+  instances=$2
 fi
 
 #
 # Start log
 #
 log=$HOME/vm-deploy.log
+
+#
+# Check user, must not be root
+#
 username=$(whoami)
 if [ "$username" = "root" ];
 then
   echo "Please run this in an user account";
   exit 2
 fi
-echo "$(date): $username starts vm-deploy $1 $vmcontainer" >> $log
+echo "$(date): $username starts vm-deploy $1 $instance" >> $log
 
 # 
 # Get local settings
@@ -73,15 +65,6 @@ then
   exit 4
 fi
 gfarmvmlist=$(echo $info | cut -d'=' -f2)
-
-info=$(grep -v "#" $scriptdir/LocalSettings | grep vmsuffix | head -1)
-if [ -z "$info" ];
-then
-  echo "vmsuffix is not defined in $scriptdir/LocalSettings" | tee -a $log;
-  echo "Please report to your system administrator";
-  exit 5
-fi
-vmsuffix=$(echo $info | cut -d'=' -f2)
 
 info=$(grep -v "#" $scriptdir/LocalSettings | grep bootk | head -1)
 if [ -z "$info" ];
@@ -106,7 +89,7 @@ if [ -z "$info" ];
 then
   echo "netmask is not defined in $scriptdir/LocalSettings" | tee -a $log;
   echo "Please report to your system administrator";
-  exit 6
+  exit 7
 fi
 netmask=$(echo $info | cut -d'=' -f2)
 
@@ -115,38 +98,28 @@ if [ -z "$info" ];
 then
   echo "gateway is not defined in $scriptdir/LocalSettings" | tee -a $log;
   echo "Please report to your system administrator";
-  exit 7
+  exit 8
 fi
 gateway=$(echo $info | cut -d'=' -f2)
 # debugging echo
-echo "$gfarmvmdir, $gfarmvmlist, $vmsuffix, $nettype, $netmask, $gateway"
+echo "$gfarmvmdir, $gfarmvmlist, $nettype, $netmask, $gateway"
 
 #
-# Resulting VM name is the input vm-name concatanated 
-# with username and vm-container index number
+# Get the available nodes for vm-deployment
 #
-prefix=$(echo $vmcontainer | cut -c1-12)
-index=$(echo $vmcontainer | cut -c13-)
-if [ "$prefix" = "vm-container" ];
+nodes=(`grep -v "#" "$scriptdir/AvailableNodes"`)
+let "totalnodes=0"
+for node in "${nodes[@]}"
+do 
+let "totalnodes=$totalnodes+1";
+#debugging echo
+echo "node=$node, totalnodes=$totalnodes";
+done
+if [ $totalnodes -le 0 ];
 then
-  uservm=$1"-"$username$index
-else
-  uservm=$1"-"$username
-fi
-# debugging echo
-echo "uservm = $uservm"
-
-#
-# Check vm-name
-#
-uservmcolon=$uservm":"
-vminfo=$(/opt/rocks/bin/rocks list host | grep "$uservmcolon")
-if [ -n "$vminfo" ];
-then
-  echo "$uservm already exist" | tee -a $log;
-  echo "$vminfo" | tee -a $log;
-  echo "No VM is created. Exit." | tee -a $log;
-  exit 8
+  echo "Available vm hosting server and container are not defined" | tee -a $log;
+  echo "Please report to your system administrator";
+  exit 9
 fi
 
 #
@@ -160,22 +133,8 @@ then
   echo "Try again after you fix the Gfarm access problem";
   echo "exit";
   echo "User failed Gfarm access test. Quit." >> $log;
-  exit 9
-fi
-
-#
-# Check available ip
-#
-vminfo=$(grep -v "#" $scriptdir/AvailableIP | head -1)
-if [ -z "$vminfo" ];
-then
-  echo "No more unallocated ip in $scriptdir/AvailableIP file";
-  echo "exit";
-  echo "All ip# in $scriptdir/AvailableIP are marked used. Quit." >> $log;
   exit 10
 fi
-vmip=$(echo $vminfo | cut -d' ' -f1)
-vmhostname=$(echo $vminfo | cut -d' ' -f2)
 
 #
 # Check VM file name in Gfarm
@@ -205,7 +164,7 @@ do
   fi
 done
 # debugging echo
-echo "vmip = $vmip, vmhostname = $vmhostname, vmname=$vmname, bootorder = $bootorder, vmpath = $vmpath"
+echo "vmname=$vmname, bootorder = $bootorder, vmpath = $vmpath"
 
 #
 # Uncomment the line below to do md5sum-check when fetch gfarm file
@@ -235,59 +194,225 @@ let "vmsize/=100"
 echo "disk space required is $vmsize KB"
 
 #
+# How much disk space is available in user home directory
+#
+cd $HOME
+diskinfo=$(df . | tail -1)
+if [ -z "$diskinfo" ];
+then
+  echo "df command returned no information. System error.";
+  echo "Please report to your system administrator.";
+  echo "Unable to continue. Exit..."
+  exit 13
+fi
+space=$(echo $diskinfo | cut -d' ' -f4)
+# debugging echo
+echo "Available disk space = $space"
+
+#
+# Enough disk space?
+#
+if [ $vmsize -gt $space ];
+then
+# debugging echo
+  echo "Need $vmsize KB in $HOME and only $space KB available";
+  echo "Unable to continue. Exit..."
+  exit 14
+fi
+
+#
+# Get VM image from gfarm
+#
+vmhomepath=$HOME"/"$1"-"$username".img"
+echo "Fetching VM image $gfarmvmdir/$vmpath... May take several minutes"
+gfexport $gfarmvmdir/$vmpath | gunzip > $vmhomepath
+
+#
+# Make user public keys available for VM image modification
+#
+userkeyfile=/tmp/$1"-"$username".tmp"
+/bin/cat $HOME/.ssh/*.pub > $userkeyfile
+
+#
+# Create one VM at a time
+# Two loops:
+#    inner loop - deploy one VM on each available node
+#    outter loop - deploy more rounds until
+#                  reaches the total number of instances requested
+#                  or run out of resources
+#
+let "totalvms=0"
+let "seqnum=-1"
+
+# Outter loop
+while :
+do
+let "seqnum+=1"
+ 
+# Inner loop
+for node in "${nodes[@]}"
+do 
+if [ $totalvms -ge $instances ];
+then
+  echo "Success! $instances instances of $vmname have been deployed as requested";
+  /opt/rocks/bin/rocks list host vm status=yes | grep $1"-"$username;
+  $scriptdir/vm-cleanup 1 $userkeyfile $vmhomepath;
+  if [ $? -ne 0 ];
+  then
+    echo "Script error: vm-cleanup 1 returned $?" | tee -a $log;
+    echo "Please inform the system administrators"
+    echo "Please remove $userkeyfile and $vmhomepath yourself manually"
+  fi
+  exit 0
+fi
+if [ $totalnodes -le 0 ];
+then
+  echo "$totalvms instances of $vmname have been deployed";
+  /opt/rocks/bin/rocks list host vm status=yes | grep $1"-"$username;
+  echo "Resources exhausted - all containers either full or unavailable. Exit...";
+  $scriptdir/vm-cleanup 1 $userkeyfile $vmhomepath;
+  if [ $? -ne 0 ];
+  then
+    echo "Script error: vm-cleanup 1 returned $?" | tee -a $log;
+    echo "Please inform the system administrators"
+    echo "Please remove $userkeyfile and $vmhomepath yourself manually"
+  fi
+  exit 15
+fi
+if [ "$node" = "NOT AVAILABLE" ];
+then
+continue
+fi
+if [ "$node" = $(hostname) ];
+then
+  frontend=1
+else
+  frontend=0
+fi
+
+#
+# VM name is the input vm-name concatanated with
+# username, vm-container index number and a sequence number
+#
+prefix=$(echo $node | cut -c1-12)
+index=$(echo $node | cut -c13-)
+if [ "$prefix" = "vm-container" ];
+then
+  uservm=$1"-"$username$index"-"$seqnum
+else
+  uservm=$1"-"$username"-"$seqnum
+fi
+# debugging echo
+echo "uservm = $uservm"
+
+#
+# Check vm-name
+#
+uservmcolon=$uservm":"
+vminfo=$(/opt/rocks/bin/rocks list host | grep "$uservmcolon")
+if [ -n "$vminfo" ];
+then
+  echo "$uservm already exist" | tee -a $log;
+  echo "$vminfo" | tee -a $log;
+  echo "Skip $node." | tee -a $log;
+  continue 
+fi
+
+#
+# Check available ip
+#
+vminfo=$(grep -v "#" $scriptdir/AvailableIP | head -1)
+if [ -z "$vminfo" ];
+then
+  echo "No more unallocated ip in $scriptdir/AvailableIP file";
+  echo "$totalvms instances of $vmname have been deployed";
+  /opt/rocks/bin/rocks list host vm status=yes | grep $1"-"$username;
+  echo "Exit...";
+  echo "All ip# in $scriptdir/AvailableIP are marked used. Quit." >> $log;
+  $scriptdir/vm-cleanup 1 $userkeyfile $vmhomepath;
+  if [ $? -ne 0 ];
+  then
+    echo "Script error: vm-cleanup 1 returned $?" | tee -a $log;
+    echo "Please inform the system administrators"
+    echo "Please remove $userkeyfile and $vmhomepath yourself manually"
+  fi
+  exit 16
+fi
+vmip=$(echo $vminfo | cut -d' ' -f1)
+vmhostname=$(echo $vminfo | cut -d' ' -f2)
+
+#
 # Create a new VM
 #
 echo "Creating new VM $uservm... May take a few minutes"
 # debugging echo
-echo "sudo $scriptdir/vm-new $vmcontainer $uservm $vmip $scriptdir/AvailableIP $nettype $HOME"
-sudo $scriptdir/vm-new $vmcontainer $uservm $vmip $scriptdir/AvailableIP $nettype $HOME
+echo "sudo $scriptdir/vm-new $node $uservm $vmip $scriptdir/AvailableIP $nettype $HOME"
+sudo $scriptdir/vm-new $node $uservm $vmip $scriptdir/AvailableIP $nettype $HOME
 if [ $? -eq 1 ];
 then
   echo "Failed to create new VM $uservm" | tee -a $log;
   echo "Please report the problem to system administrator";
-  echo "Exit";
   echo "$scriptdir/vm-new returned 1 to $scriptdir/vm-deploy" >> $log;
-  exit 13
+  node="NOT AVAILABLE";
+  totalnodes-=1;
+  continue
 fi
 if [ $? -eq 2 ];
 then
   echo "Failed to set network interface for VM $uservm" | tee -a $log;
   echo "Please report the problem to system administrator";
-  echo "Exit";
   echo "$scriptdir/vm-new returned 2 to $scriptdir/vm-deploy" >> $log;
-  exit 14
+  node="NOT AVAILABLE";
+  totalnodes-=1;
+  continue
 fi
 if [ $? -eq 3 ];
 then
   echo "Failed to set network interface ip for VM $uservm" | tee -a $log;
   echo "Please report the problem to system administrator";
-  echo "Exit";
   echo "$scriptdir/vm-new returned 3 to $scriptdir/vm-deploy" >> $log;
-  exit 15
+  node="NOT AVAILABLE";
+  totalnodes-=1;
+  continue
 fi
 if [ $? -eq 4 ];
 then
   echo "The output of 'rocks report host interface $uservm' looks wrong" | tee -a $log;
   echo "Please report the problem to system administrator";
-  echo "Exit";
   echo "$scriptdir/vm-new returned 4 to $scriptdir/vm-deploy" >> $log;
-  exit 15
+  node="NOT AVAILABLE";
+  totalnodes-=1;
+  continue
 fi
 if [ $? -eq 5 ];
 then
   echo "Script vm-deploy: wrong number of options specified for vm-new" | tee -a $log;
   echo "Please report the problem to system administrator";
-  echo "Exit";
   echo "$scriptdir/vm-new returned 5 to $scriptdir/vm-deploy" >> $log;
-  exit 16
+  $scriptdir/vm-cleanup 1 $userkeyfile $vmhomepath;
+  if [ $? -ne 0 ];
+  then
+    echo "Script error: vm-cleanup 1 returned $?" | tee -a $log;
+    echo "Please inform the system administrators"
+    echo "Please remove $userkeyfile and $vmhomepath yourself manually"
+  fi
+  echo "Script error. Exit...";
+  exit 17
 fi
 if [ $? -ne 0 ];
 then
   echo "Unknown error code $? returned by $scriptdir/vm-new";
   echo "Please report the problem to system administrator";
-  echo "Exit";
   echo "$scriptdir/vm-new returned $? to $scriptdir/vm-deploy" >> $log;
-  exit 17
+  $scriptdir/vm-cleanup 1 $userkeyfile $vmhomepath;
+  if [ $? -ne 0 ];
+  then
+    echo "Script error: vm-cleanup 1 returned $?" | tee -a $log;
+    echo "Please inform the system administrators"
+    echo "Please remove $userkeyfile and $vmhomepath yourself manually"
+  fi
+  echo "Script error. Exit...";
+  exit 18
 fi
 echo "VM $uservm has been created" >> $log
 /opt/rocks/bin/rocks list host | grep $uservm >> $log
@@ -295,26 +420,14 @@ echo "VM $uservm has been created" >> $log
 #
 # When deploy a VM to a vm-container:
 # Make user ssh public key available to root on vm-container
-# Copy proxy cert file to vm-container
 #
-/bin/cat $HOME/.ssh/*.pub > /tmp/$uservm.tmp;
-if [ $local -eq 0 ];
+if [ $frontend -eq 0 ];
 then
-  /usr/bin/scp /tmp/$uservm.tmp $vmcontainer:/tmp;
-  info=$(/opt/vdt/globus/bin/grid-proxy-info | grep path);
-  if [ -z "$info" ];
-  then
-    echo "No proxy exist. Assume user is using secret key for gfarm access" | tee -a $log
-  else
-    proxypath=$(echo $info | cut -d' ' -f3);
-    /usr/bin/scp $proxypath $vmcontainer:$proxypath
-  fi
+  /usr/bin/scp $userkeyfile $node:$userkeyfile
 fi
-# debugging echo
-echo "Check $vmcontainer:/tmp/$uservm.tmp. proxypath = $proxypath"
 
 #
-# Place VM image file in specified vm-container node
+# Run vm-makedisk to place VM image file in specified frontend or vm-container node
 #
 rocksversion=$(/opt/rocks/bin/rocks report version)
 info=$(/opt/rocks/bin/rocks list host vm $uservm showdisks=y | grep $uservm)
@@ -325,109 +438,163 @@ substr1=$(echo $info | cut -d' ' -f6)
 fi
 substr2=$(echo $substr1 | cut -d':' -f2)
 diskpath=$(echo $substr2 | cut -d',' -f1)
-echo "Fetch VM image file from gfarm, place and modify it. May take several minutes..."
+echo "Copy VM image file from user home directory, place and modify it. May take a few minutes..."
 # debugging echo
-echo "/usr/bin/ssh $vmcontainer $scriptdir/vm-makedisk $uservm $diskpath $vmhostname $vmip $netmask $gateway $vmsize $gfarmvmdir/$vmpath $scriptdir $bootorder"
-echo "local = $local"
-if [ $local -eq 0 ];
+echo "/usr/bin/ssh $node $scriptdir/vm-makedisk $uservm $diskpath $vmhostname $vmip $netmask $gateway $vmsize $vmhomepath $scriptdir $bootorder $userkeyfile"
+if [ $frontend -eq 1 ];
 then
-  /usr/bin/ssh $vmcontainer $scriptdir/vm-makedisk $uservm $diskpath $vmhostname $vmip $netmask $gateway $vmsize $gfarmvmdir/$vmpath $scriptdir $bootorder
+  $scriptdir/vm-makedisk $uservm $diskpath $vmhostname $vmip $netmask $gateway $vmsize $vmhomepath $scriptdir $bootorder $userkeyfile
 else
-  $scriptdir/vm-makedisk $uservm $diskpath $vmhostname $vmip $netmask $gateway $vmsize $gfarmvmdir/$vmpath $scriptdir $bootorder
-fi 
+  /usr/bin/ssh -t $node $scriptdir/vm-makedisk $uservm $diskpath $vmhostname $vmip $netmask $gateway $vmsize $vmhomepath $scriptdir $bootorder $userkeyfile
+fi
 mkdisk=$?
 # debugging echo
 echo "makedisk returned $mkdisk"
+
+#
+# Remove user ssh public key temp file from the vm-container
+#
+if [ $frontend -eq 0 ];
+then
+  /usr/bin/ssh $node "rm -f $userkeyfile"
+fi
+
+#
+# Try to start the new vm
+#
 if [ $mkdisk -eq 0 ];
 then
   info=$(sudo $scriptdir/vm-start $uservm);
   if [ -z "$info" ];
   then
-    echo "Success! New VM $uservm has been started at $(date)";
-    echo "$(date): Successful completion of $uservm deployment" >> $log;
-    exit 0
+    echo "New VM $uservm has been started at $(date)" | tee -a $log;
+    echo "Before: totalvms=$totalvms";
+    let "totalvms+=1";
+    echo "After: totalvms=$totalvms";
+    continue
   fi
   echo "vm-start returned $info";
   echo "Failed to start VM $uservm";
 fi
 
 #
-# Clean-up: remove VM and free ip
+# Failed either at vm-makedisk or vm-start. Remove new VM and free ip#.
 #
-sudo $scriptdir/vm-cleanup $uservm $vmip $scriptdir/AvailableIP
+sudo $scriptdir/vm-cleanup 2 $uservm $vmip $scriptdir/AvailableIP;
 if [ $? -ne 0 ];
 then
-  echo "Failed to remove $uservm and free $vmip. Please cleanup manually!"
-else
-  echo "Removed $uservm and freed $vmip."
+  echo "Script error: vm-cleanup 2 returned $?" | tee -a $log;
+  echo "Please inform the system administrators to remove $uservm and free $vmip manually"
 fi
 
 #
-# Handle error returns from vm-makedisk
+# Handle error returns from vm-start or vm-makedisk
 #
+if [ $mkdisk -ne 255 ];
+then
+  if [ $frontend -eq 1 ];
+  then
+    /bin/rm -f $diskpath
+  else
+    /usr/bin/ssh $node "/bin/rm -f $diskpath"
+  fi
+else
+  if [ $frontend -eq 1 ];
+  then
+    echo "$scriptdir/vm-makedisk returned 255" >> $log;
+    echo "Please report the problem to system administrator";
+    echo "$scriptdir/vm-makedisk returned 255" >> $log
+  else
+    echo "Failed to ssh to $node" | tee -a $log;
+    echo "Please report the problem to system administrator";
+    echo "$scriptdir/vm-makedisk returned 255" >> $log
+  fi
+  node="NOT AVAILABLE";
+  totalnodes-=1;
+  continue
+fi
+
+#
+# If failed at vm-start
+#
+if [ $mkdisk -eq 0];
+then
+  node="NOT AVAILABLE";
+  totalnodes-=1;
+  continue
+fi
+
 if [ $mkdisk -eq 1 ];
 then
   echo "Script vm-deploy: wrong number of options for vm-makedisk" | tee -a $log;
   echo "Please report the problem to system administrator";
   echo "$scriptdir/vm-makedisk returned 1 to $scriptdir/vm-deploy" >> $log;
-  echo "Exit";
-  exit 18
+  echo "Script error. Exit...";
+  $scriptdir/vm-cleanup 1 $userkeyfile $vmhomepath;
+  if [ $? -ne 0 ];
+  then
+    echo "Script error: vm-cleanup 1 returned $?" | tee -a $log;
+    echo "Please inform the system administrators"
+    echo "Please remove $userkeyfile and $vmhomepath yourself manually"
+  fi
+  exit 17
 fi
 if [ $mkdisk -eq 2 ];
 then
-  echo "$diskpath already exist on $vmcontainer" | tee -a $log;
+  echo "$diskpath already exist on $node" | tee -a $log;
   echo "Please clean up and try again";
-  echo "$scriptdir/vm-makedisk ran on $vmcontainer returned 2 to $scriptdir/vm-deploy" >> $log;
-  echo "Exit";
-  exit 19
+  echo "$scriptdir/vm-makedisk ran on $node returned 2 to $scriptdir/vm-deploy" >> $log;
+  node="NOT AVAILABLE";
+  totalnodes-=1;
+  continue
 fi
 if [ $mkdisk -eq 3 ];
 then
-  echo "Failed df $diskpath on $vmcontainer" | tee -a $log;
+  echo "Failed df $diskpath on $node" | tee -a $log;
   echo "Please report the problem to system administrator";
-  echo "$scriptdir/vm-makedisk ran on $vmcontainer returned 2 to $scriptdir/vm-deploy" >> $log;
-  echo "Exit";
-  exit 20
+  echo "$scriptdir/vm-makedisk ran on $node returned 2 to $scriptdir/vm-deploy" >> $log;
+  node="NOT AVAILABLE";
+  totalnodes-=1;
+  continue
 fi
 if [ $mkdisk -eq 4 ];
 then
-  echo "Insufficient disk space for $diskpath on $vmcontainer (need $vmsize KB)" | tee -a $log;
+  echo "Insufficient disk space for $diskpath on $node (need $vmsize KB)" | tee -a $log;
   echo "Please report the problem to system administrator";
-  echo "$scriptdir/vm-makedisk ran on $vmcontainer returned 3 to $scriptdir/vm-deploy" >> $log;
-  echo "Exit";
-  exit 21
+  echo "$scriptdir/vm-makedisk ran on $node returned 3 to $scriptdir/vm-deploy" >> $log;
+  node="NOT AVAILABLE";
+  totalnodes-=1;
+  continue
 fi
 if [ $mkdisk -eq 5 ];
-then
-  echo "User $username has no access to Gfarm file system from $vmcontainer" | tee -a $log;
-  echo "Check Gfarm access by manually run a gfarm command on $vmcontainer";
-  echo "Try again after you fix the Gfarm access problem";
-  echo "exit"
-  exit 22
-fi
-if [ $mkdisk -eq 6 ];
 then
   echo "Wrong number of options for vm-makeover by vm-makedisk" | tee -a $log;
   echo "Please report the problem to system administrator";
   echo "$scriptdir/vm-makeover returned 1 to $scriptdir/vm-makedisk" >> $log;
-  echo "Exit";
-  exit 23
+  echo "Script error. Exit...";
+  $scriptdir/vm-cleanup 1 $userkeyfile $vmhomepath;
+  if [ $? -ne 0 ];
+  then
+    echo "Script error: vm-cleanup 1 returned $?" | tee -a $log;
+    echo "Please inform the system administrators"
+    echo "Please remove $userkeyfile and $vmhomepath yourself manually"
+  fi
+  exit 18
+fi
+if [ $mkdisk -eq 6 ];
+then
+  echo "/tmp/$uservm on $node is in use and failed to un-mount" | tee -a $log;
+  echo "$scriptdir/vm-makeover returned 2 to $scriptdir/vm-makedisk" >> $log;
+  continue
 fi
 if [ $mkdisk -eq 7 ];
 then
-  echo "/tmp/$uservm on $vmcontainer is in use and failed to un-mount" | tee -a $log;
-  echo "Please try again when /tmp/$uservm is freed on $vmcontainer";
-  echo "$scriptdir/vm-makeover returned 2 to $scriptdir/vm-makedisk" >> $log;
-  echo "Exit";
-  exit 24
-fi
-if [ $mkdisk -eq 8 ];
-then
-  echo "Failed to lomount $diskpath on /tmp/$uservm on $vmcontainer" | tee -a $log;
+  echo "Failed to lomount $diskpath on /tmp/$uservm on $node" | tee -a $log;
   echo "Please try report the problem to system administrator";
   echo "$scriptdir/vm-makeover returned 3 to $scriptdir/vm-makedisk" >> $log;
-  echo "Exit";
-  exit 25
+  node="NOT AVAILABLE";
+  totalnodes-=1;
+  continue
 fi
 
 #
@@ -435,5 +602,21 @@ fi
 #
 echo "$scriptdir/vm-makedisk returned $mkdisk - an unhandled error" | tee -a $log;
 echo "Please report the problem to system administrator";
-echo "Exit";
-exit 26
+if [ $frontend -eq 1 ];
+then
+  /bin/rm -f $diskpath
+else
+  /usr/bin/ssh $node "/bin/rm -f $diskpath";
+fi
+echo "Exit...";
+exit 99
+
+#
+# End of inner loop
+#
+done
+
+#
+# End of outer loop
+#
+done
