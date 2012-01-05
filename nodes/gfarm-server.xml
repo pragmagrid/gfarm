@@ -16,6 +16,9 @@
 
 	<changelog>
 	$Log$
+	Revision 1.27  2012/01/05 01:08:20  zhengc
+	Fixed 2 bugs. Completed tests on rocks 5.4.
+	
 	Revision 1.26  2012/01/04 20:47:08  zhengc
 	Adjusted divisions among common, server and client xml files. Tested on Rocks 5.4 system.
 	
@@ -69,6 +72,7 @@
 /opt/rocks/bin/rocks sync host firewall `hostname`
 /sbin/service iptables restart
 
+. /etc/profile.d/globus.sh
 /opt/vdt/vdt/sbin/vdt-control --on
 /opt/vdt/vdt/sbin/vdt-update-certs --force
 
@@ -103,7 +107,7 @@
 /sbin/chkconfig gfmd off
 /sbin/chkconfig gfsd off
 
-/bin/echo "FILES += /etc/grid-security/certs.tar /opt/gfarm/etc/gfarm2.conf"
+/bin/echo "FILES += /etc/grid-security/certs.tar /opt/gfarm/etc/gfarm2.conf" >> /var/411/Files.mk
 
 /opt/rocks/bin/rocks sync users
 /bin/rm -f /etc/rc.d/rocksconfig.d/post-51-gfarm-server
