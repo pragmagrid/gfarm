@@ -1,6 +1,6 @@
 ROLLNAME	= gfarm
 VERSION		= 1.0
-RELEASE		= 0
+RELEASE		= 2
 COLOR		= darkkhaki
 
 REDHAT.ROOT	= $(CURDIR)

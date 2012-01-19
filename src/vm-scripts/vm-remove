@@ -14,18 +14,18 @@ scriptdir=/opt/vm-scripts
 if [ $# != 1 ];
 then
   echo "Please specify the name of VM to be removed";
-  echo "Usage: vm-remove vm-name"
+  echo "To remove multiple VMs with the same base name, specify the base name";
+  echo "Usage: vm-remove vm-name";
   exit 1
 fi
 
 #
 # Is the VM exist
 #
-uservmcolon=$1":"
-info=$(/opt/rocks/bin/rocks list host | grep $uservmcolon)
-if [ -z "$info" ];
+/opt/rocks/bin/rocks list host vm | grep $1 > /tmp/remove-$1.txt
+if [ ! -s /tmp/remove-$1.txt ];
 then
-  echo "VM $1 does not exist"
+  echo "VM $1 does not exist";
   exit 2
 fi
 
@@ -41,34 +41,63 @@ then
     echo "Permission denied: Only root or user $vmuser can remove $1";
     exit 3
   fi
-  echo "sudo $scriptdir/vm-free $1 $scriptdir/AvailableIP";
-  sudo $scriptdir/vm-free $1 $scriptdir/AvailableIP
-else
-echo "$scriptdir/vm-free $1 $scriptdir/AvailableIP";
-$scriptdir/vm-free $1 $scriptdir/AvailableIP
 fi
-if [ $? -eq 0 ];
+
+#
+# Get VM names in an array
+declare -a vmname
+declare -i i=0
+while read;
+do
+  vmname[ $i ]=$(echo "$REPLY" | cut -d':' -f1);
+  ((i = i + 1));
+done < /tmp/remove-$1.txt
+vmcount=$i
+
+#
+# allow user to confirm
+#
+echo "Ready to remove the following VMs:"
+/bin/cat /tmp/remove-$1.txt
+echo "Confirm (y) or Quit (n)?"
+read answer
+if [ $answer != "y" ];
 then
-  echo "$1 has been successfully removed and resources freed"
-  exit 0
+  echo "Terminate per user request - no VM is removed";
+  exit
 fi
-if [ $? -eq 1 ];
-then
-  echo "Internal error: number of arguments mismatch when vm-remove ran vm-free"
-  exit 4
-fi
-if [ $? -eq 2 ];
-then
-  echo "vm-free: Failed to stop $1"
-  echo "Please report the the system administrators"
-  exit 5
-fi
-if [ $? -eq 3 ];
-then
-  echo "vm-free: Failed to remove $1"
-  echo "Please report the the system administrators"
-  exit 5
-fi
-echo "vm-free: Failed to remove $1 disk image file"
-echo "Please manually remove the disk image file or report to your system administrator"
-exit 6
+
+#
+# Start loop thru the VMs
+#
+i=0
+while [ $i -lt $vmcount ]
+do
+  echo "sudo $scriptdir/vm-free ${vmname[$i]} $scriptdir/AvailableIP";
+  sudo $scriptdir/vm-free ${vmname[$i]} $scriptdir/AvailableIP
+  if [ $? -eq 0 ];
+  then
+    echo "${vmname[$i]} has been successfully removed and resources freed";
+  elif [ $? -eq 1 ];
+  then
+    echo "Internal error: number of arguments mismatch when vm-remove ran vm-free"
+    exit 4
+  elif [ $? -eq 2 ];
+  then
+    echo "vm-free: Failed to stop ${vmname[$i]}"
+    echo "Please report the the system administrators"
+    exit 5
+  elif [ $? -eq 3 ];
+  then
+    echo "vm-free: Failed to remove ${vmname[$i]}"
+    echo "Please report the the system administrators"
+    exit 5
+  else
+    echo "vm-free: Failed to remove ${vmname[$i]} disk image file"
+    echo "Please manually remove the disk image file or report to your system administrator"
+    exit 6
+  fi
+  (( i = i + 1 ))
+done
+/bin/rm /tmp/remove-$1.txt
+exit 0
