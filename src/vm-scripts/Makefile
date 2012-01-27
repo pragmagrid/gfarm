@@ -54,6 +54,9 @@
 # @Copyright@
 #
 # $Log$
+# Revision 1.6  2012/01/27 20:01:45  zhengc
+# Added "AvailableNodes" file in Makefile for vm-scripts.
+#
 # Revision 1.5  2011/11/02 07:14:07  zhengc
 # Add scripts to remove vm-deploy'ed VM and free resources
 #
@@ -74,7 +77,7 @@
 #
 
 REDHAT.ROOT = $(CURDIR)/../../
-SCRIPTS = AvailableIP LocalSettings resolv.conf vm-cleanup vm-deploy vm-makedisk vm-makeover vm-new vm-start makeec2.sh vm-remove vm-free
+SCRIPTS = AvailableIP AvailableNodes LocalSettings resolv.conf vm-cleanup vm-deploy vm-makedisk vm-makeover vm-new vm-start makeec2.sh vm-remove vm-free
 
 -include $(ROCKSROOT)/etc/Rules.mk
 include Rules.mk
