@@ -1,10 +1,11 @@
 #!/bin/bash
 #
-# vm-deploy - Deploy VMs use a VM disk image file in Gfarm
+# local-vm-deploy - Deploy VMs use a VM disk image file on local disk
+# The disk image file and vmdb.txt file must in the same directory
 # Each vm-container can only run one instance of a VM image for one user
 # Assumes shared user home directories on all nodes
 # 
-# V3.2 - 3/20/12, Cindy Zheng, zhengc@sdsc.edu
+# V2.1 - 3/13/12, Cindy Zheng, zhengc@sdsc.edu
 #
 
 #
@@ -15,24 +16,18 @@ scriptdir="/opt/vm-scripts"
 #
 # This script should be run in an user account
 # 
-# $ vm-deploy <vm-image-name> <number of instances>
+# $ local-vm-deploy <vm-image-name> <number-of-instances> <local-directory-path>
 #
-if [ -z $1 ] || [ $# -gt 2 ];
+if [ $# -ne 3 ];
 then
-  echo "Usage: vm-deploy <vm-image-name> <number of instances>";
+  echo "Usage: local-vm-deploy <vm-image-name> <number-of-instances> <local-directory-path>";
   exit 1
-fi
-if [ $# -eq 1 ];
-then
-  let "instances=1"
-else
-  let "instances=$2"
 fi
 
 #
 # Start log
 #
-log=$HOME/vm-deploy.log
+log=$HOME/local-vm-deploy.log
 
 #
 # Check user, must not be root
@@ -43,29 +38,11 @@ then
   echo "Please run this in an user account";
   exit 2
 fi
-echo "$(date): $username starts vm-deploy $1 $instance" >> $log
+echo "$(date): $username starts local-vm-deploy $1 $2 $3" >> $log
 
 # 
 # Get local settings
 #
-info=$(grep -v "#" $scriptdir/LocalSettings | grep gfarmvmdir | head -1)
-if [ -z "$info" ];
-then
-  echo "gfarmvmdir is not defined in $scriptdir/LocalSettings" | tee -a $log;
-  echo "Please report to your system administrator";
-  exit 3
-fi
-gfarmvmdir=$(echo $info | cut -d'=' -f2)
-
-info=$(grep -v "#" $scriptdir/LocalSettings | grep gfarmvmlist | head -1)
-if [ -z "$info" ];
-then
-  echo "gfarmvmlist is not defined in $scriptdir/LocalSettings" | tee -a $log;
-  echo "Please report to your system administrator";
-  exit 4
-fi
-gfarmvmlist=$(echo $info | cut -d'=' -f2)
-
 info=$(grep -v "#" $scriptdir/LocalSettings | grep bootk | head -1)
 if [ -z "$info" ];
 then
@@ -102,7 +79,7 @@ then
 fi
 gateway=$(echo $info | cut -d'=' -f2)
 # debugging echo
-echo "$gfarmvmdir, $gfarmvmlist, $nettype, $netmask, $gateway"
+echo "$nettype, $netmask, $gateway"
 
 #
 # Get the available nodes for vm-deployment
@@ -123,29 +100,15 @@ then
 fi
 
 #
-# Check user gfarm access
-#
-gfls > /dev/null 2>&1
-if [ $? -ne 0 ];
-then
-  echo "Failed to access Gfarm file system";
-  echo "Check Gfarm access by manually run a gfarm command";
-  echo "Try again after you fix the Gfarm access problem";
-  echo "exit";
-  echo "User failed Gfarm access test. Quit." >> $log;
-  exit 10
-fi
-
-#
-# Check VM file name in Gfarm
+# Check VM file name
 #
 vmnamecomma=$1","
-vminfo=$(gfexport $gfarmvmlist | grep $vmnamecomma)
+vminfo=$(cat $3/vmdb.txt | grep $vmnamecomma)
 if [ -z "$vminfo" ];
 then
-  echo "$1 does not exist in gfarm:$gfarmvmlist";
+  echo "$1 does not exist in $3/vmdb.txt";
   echo "exit";
-  echo "No match for $1 in gfarm:$gfarmvmlist. Quit." >> $log;
+  echo "No match for $1 in $3/vmdb.txt. Quit." >> $log;
   exit 11
 fi
 
@@ -173,15 +136,15 @@ echo "vmname=$vmname, bootorder = $bootorder, vmpath = $vmpath"
 #vmmd5sum=$(echo $vminfo | cut -d',' -f4)
 
 #
-# Check Gfarm VM image file size
+# Check VM image file size
 #
-vminfo=$(gfls -l $gfarmvmdir/$vmpath)
+vminfo=$(ls -l $3/$vmpath)
 if [ -z "$vminfo" ];
 then
-  echo "Inconsistence: $1 image file does not exist, but it's defined in gfarm:$gfarmvmlist";
+  echo "Inconsistence: $1 image file does not exist, but it's defined in $3/vmdb.txt";
   echo "Please ask your Gfarm metaserver administrator to fix this problem, then try again.";
   echo "Bye for now";
-  echo "No match for $vmpath in gfarm:$gfarmvmlist. Gfarm admin need to fix this. Quit." >> $log;
+  echo "$vmpath does not exist in $3. System admin need to fix this. Quit." >> $log;
   exit 12
 fi
 #
@@ -221,11 +184,11 @@ then
 fi
 
 #
-# Get VM image from gfarm
+# Copy VM image to user home directory
 #
 vmhomepath=$HOME"/"$1"-"$username".img"
-echo "Fetching VM image $gfarmvmdir/$vmpath... May take several minutes"
-gfexport $gfarmvmdir/$vmpath | gunzip > $vmhomepath
+echo "Copying VM image $3/$vmpath... May take several minutes"
+gunzip -c $3/$vmpath > $vmhomepath
 
 #
 # Make user public keys available for VM image modification
@@ -252,9 +215,9 @@ let "seqnum+=1"
 # Inner loop
 for node in "${nodes[@]}"
 do 
-if [ $totalvms -ge $instances ];
+if [ $totalvms -ge $2 ];
 then
-  echo "Success! $instances instances of $vmname have been deployed as requested";
+  echo "Success! $2 instances of $vmname have been deployed as requested";
   sudo /opt/rocks/bin/rocks list host vm status=yes | grep $1"-"$username;
   $scriptdir/vm-cleanup 1 $userkeyfile $vmhomepath;
   if [ $? -ne 0 ];
@@ -352,7 +315,7 @@ if [ $? -eq 1 ];
 then
   echo "Failed to create new VM $uservm" | tee -a $log;
   echo "Please report the problem to system administrator";
-  echo "$scriptdir/vm-new returned 1 to $scriptdir/vm-deploy" >> $log;
+  echo "$scriptdir/vm-new returned 1 to $scriptdir/local-vm-deploy" >> $log;
   node="NOT AVAILABLE";
   let "totalnodes-=1";
   continue
@@ -361,7 +324,7 @@ if [ $? -eq 2 ];
 then
   echo "Failed to set network interface for VM $uservm" | tee -a $log;
   echo "Please report the problem to system administrator";
-  echo "$scriptdir/vm-new returned 2 to $scriptdir/vm-deploy" >> $log;
+  echo "$scriptdir/vm-new returned 2 to $scriptdir/local-vm-deploy" >> $log;
   node="NOT AVAILABLE";
   let "totalnodes-=1";
   continue
@@ -370,7 +333,7 @@ if [ $? -eq 3 ];
 then
   echo "Failed to set network interface ip for VM $uservm" | tee -a $log;
   echo "Please report the problem to system administrator";
-  echo "$scriptdir/vm-new returned 3 to $scriptdir/vm-deploy" >> $log;
+  echo "$scriptdir/vm-new returned 3 to $scriptdir/local-vm-deploy" >> $log;
   node="NOT AVAILABLE";
   let "totalnodes-=1";
   continue
@@ -379,16 +342,16 @@ if [ $? -eq 4 ];
 then
   echo "The output of 'rocks report host interface $uservm' looks wrong" | tee -a $log;
   echo "Please report the problem to system administrator";
-  echo "$scriptdir/vm-new returned 4 to $scriptdir/vm-deploy" >> $log;
+  echo "$scriptdir/vm-new returned 4 to $scriptdir/local-vm-deploy" >> $log;
   node="NOT AVAILABLE";
   let "totalnodes-=1";
   continue
 fi
 if [ $? -eq 5 ];
 then
-  echo "Script vm-deploy: wrong number of options specified for vm-new" | tee -a $log;
+  echo "Script local-vm-deploy: wrong number of options specified for vm-new" | tee -a $log;
   echo "Please report the problem to system administrator";
-  echo "$scriptdir/vm-new returned 5 to $scriptdir/vm-deploy" >> $log;
+  echo "$scriptdir/vm-new returned 5 to $scriptdir/local-vm-deploy" >> $log;
   $scriptdir/vm-cleanup 1 $userkeyfile $vmhomepath;
   if [ $? -ne 0 ];
   then
@@ -403,7 +366,7 @@ if [ $? -ne 0 ];
 then
   echo "Unknown error code $? returned by $scriptdir/vm-new";
   echo "Please report the problem to system administrator";
-  echo "$scriptdir/vm-new returned $? to $scriptdir/vm-deploy" >> $log;
+  echo "$scriptdir/vm-new returned $? to $scriptdir/local-vm-deploy" >> $log;
   $scriptdir/vm-cleanup 1 $userkeyfile $vmhomepath;
   if [ $? -ne 0 ];
   then
@@ -526,9 +489,9 @@ fi
 
 if [ $mkdisk -eq 1 ];
 then
-  echo "Script vm-deploy: wrong number of options for vm-makedisk" | tee -a $log;
+  echo "Script local-vm-deploy: wrong number of options for vm-makedisk" | tee -a $log;
   echo "Please report the problem to system administrator";
-  echo "$scriptdir/vm-makedisk returned 1 to $scriptdir/vm-deploy" >> $log;
+  echo "$scriptdir/vm-makedisk returned 1 to $scriptdir/local-vm-deploy" >> $log;
   echo "Script error. Exit...";
   $scriptdir/vm-cleanup 1 $userkeyfile $vmhomepath;
   if [ $? -ne 0 ];
@@ -543,7 +506,7 @@ if [ $mkdisk -eq 2 ];
 then
   echo "$diskpath already exist on $node" | tee -a $log;
   echo "Please clean up and try again";
-  echo "$scriptdir/vm-makedisk ran on $node returned 2 to $scriptdir/vm-deploy" >> $log;
+  echo "$scriptdir/vm-makedisk ran on $node returned 2 to $scriptdir/local-vm-deploy" >> $log;
   node="NOT AVAILABLE";
   let "totalnodes-=1";
   continue
@@ -552,7 +515,7 @@ if [ $mkdisk -eq 3 ];
 then
   echo "Failed df $diskpath on $node" | tee -a $log;
   echo "Please report the problem to system administrator";
-  echo "$scriptdir/vm-makedisk ran on $node returned 2 to $scriptdir/vm-deploy" >> $log;
+  echo "$scriptdir/vm-makedisk ran on $node returned 2 to $scriptdir/local-vm-deploy" >> $log;
   node="NOT AVAILABLE";
   let "totalnodes-=1";
   continue
@@ -561,7 +524,7 @@ if [ $mkdisk -eq 4 ];
 then
   echo "Insufficient disk space for $diskpath on $node (need $vmsize KB)" | tee -a $log;
   echo "Please report the problem to system administrator";
-  echo "$scriptdir/vm-makedisk ran on $node returned 3 to $scriptdir/vm-deploy" >> $log;
+  echo "$scriptdir/vm-makedisk ran on $node returned 3 to $scriptdir/local-vm-deploy" >> $log;
   node="NOT AVAILABLE";
   let "totalnodes-=1";
   continue
