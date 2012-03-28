@@ -107,7 +107,7 @@ echo "$gfarmvmdir, $gfarmvmlist, $nettype, $netmask, $gateway"
 #
 # Get the available nodes for vm-deployment
 #
-nodes=(`grep -v "#" "$scriptdir/AvailableNodes"`)
+nodes=(`grep '.' $scriptdir/AvailableNodes | grep -v "#"`)
 let "totalnodes=0"
 for node in "${nodes[@]}"
 do 
@@ -321,7 +321,7 @@ fi
 #
 # Check available ip
 #
-vminfo=$(grep -v "#" $scriptdir/AvailableIP | head -1)
+vminfo=$(grep '.' $scriptdir/AvailableIP | grep -v "#" | head -1)
 if [ -z "$vminfo" ];
 then
   echo "No more unallocated ip in $scriptdir/AvailableIP file";
