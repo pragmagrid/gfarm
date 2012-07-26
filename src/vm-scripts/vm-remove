@@ -22,7 +22,7 @@ fi
 #
 # Is the VM exist
 #
-/opt/rocks/bin/rocks list host vm | grep $1 > /tmp/remove-$1.txt
+/opt/rocks/bin/rocks list host | grep $1 > /tmp/remove-$1.txt
 if [ ! -s /tmp/remove-$1.txt ];
 then
   echo "VM $1 does not exist";
@@ -70,7 +70,7 @@ fi
 #
 # Start loop thru the VMs
 #
-i=0
+let i=0
 while [ $i -lt $vmcount ]
 do
   echo "sudo $scriptdir/vm-free ${vmname[$i]} $scriptdir/AvailableIP";
@@ -85,12 +85,12 @@ do
   elif [ $? -eq 2 ];
   then
     echo "vm-free: Failed to stop ${vmname[$i]}"
-    echo "Please report the the system administrators"
+    echo "Please report to the system administrators"
     exit 5
   elif [ $? -eq 3 ];
   then
     echo "vm-free: Failed to remove ${vmname[$i]}"
-    echo "Please report the the system administrators"
+    echo "Please report to the system administrators"
     exit 5
   else
     echo "vm-free: Failed to remove ${vmname[$i]} disk image file"

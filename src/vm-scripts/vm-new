@@ -7,10 +7,10 @@
 #
 
 #
-# vm-new $vmcontainer $uservm $vmip $availableip $nettype $userhomedir
+# vm-new $vmcontainer $uservm $vmip $availableip $nettype $userhomedir $rocks
 #
 
-if [ $# != 6 ];
+if [ $# != 7 ];
 then
   exit 5
 fi
@@ -18,23 +18,31 @@ fi
 #
 # Create a new VM
 #
+if [ $7 -eq 1 ];
+then
+   /opt/rocks/bin/rocks add cluster $3 0 fe-container=$1 fe-name=$2
+else
 /opt/rocks/bin/rocks add host vm $1 membership="hosted vm" name=$2
+fi
 if [ $? -ne 0 ];
 then
   exit 1
 fi
 
-/opt/rocks/bin/rocks set host interface subnet $2 eth0 $5
-if [ $? -ne 0 ];
+if [ $7 -eq 0 ];
 then
-  /opt/rocks/bin/rocks remove host $2;
-  exit 2
-fi
-/opt/rocks/bin/rocks set host interface ip $2 eth0 $3 
-if [ $? -ne 0 ];
-then
-  /opt/rocks/bin/rocks remove host $2;
-  exit 3
+  /opt/rocks/bin/rocks set host interface subnet $2 eth0 $5
+  if [ $? -ne 0 ];
+  then
+    /opt/rocks/bin/rocks remove host $2;
+    exit 2
+  fi
+  /opt/rocks/bin/rocks set host interface ip $2 eth0 $3
+  if [ $? -ne 0 ];
+  then
+    /opt/rocks/bin/rocks remove host $2;
+    exit 3
+  fi
 fi
 /opt/rocks/bin/rocks set host attr $2 os linux
 

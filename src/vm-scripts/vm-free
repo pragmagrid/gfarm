@@ -7,16 +7,18 @@
 # V2.0 - 10/4/11, Cindy Zheng, zhengc@sdsc.edu
 #
 
-if [ $# != 2 ];
+if [ $# -ne 2 ];
 then
   exit 1
 fi
 
 #
 # Find the VM's IP address
+# In the case of multi-interfaced vm, public interface is the last line
+# and that's what we want
 #
-info=$(/opt/rocks/bin/rocks list host interface $1 | grep $1)
-ip=$(echo $info | cut -d' ' -f4)
+info=$(/opt/rocks/bin/rocks list host interface $1 | grep public)
+ip=$(echo $info | cut -d' ' -f4);
 
 #
 # Find the VM disk file path
@@ -34,7 +36,7 @@ substr2=$(echo $substr1 | cut -d':' -f2)
 diskpath=$(echo $substr2 | cut -d',' -f1)
 
 # debugging echo
-# echo "ip=$ip, diskpath=$diskpath"
+echo "ip=$ip, diskpath=$diskpath"
 
 #
 # Remove the new VM

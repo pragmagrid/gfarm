@@ -6,7 +6,7 @@
 # Gfarm VM disk images directory and database 
 #
 gfarmvmdir=/vm-images
-gfarmvmlist=/vm-images/vmdb.txt
+vmdb=vmdb.txt
 
 #
 # What type of kernel to boot VM with
